@@ -1,0 +1,16 @@
+name: cep-bdpo-color
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pytorch=2.3.*
+  - torchvision=0.18.*
+  - pytorch-cuda=12.1
+  - mkl<2024.1
+  - numpy
+  - pillow
+  - tqdm
+  - pip
