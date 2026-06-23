@@ -1,0 +1,21 @@
+\begin{algorithm}[t]
+\caption{Behavior-Regularized Diffuion Policy Optimization (\texttt{BDPO})}
+\label{code}
+\textbf{Input}: Offline dataset $\mathcal{D}$, initialized diffusion policy $p^\pi$ and $p^\nu$, Q-value networks $Q_{\psi_k}$, diffusion value networks $V_{\phi_k}$.
+
+\begin{algorithmic}[1]
+\STATE {\color{gray}// Pretrain $p^\nu$}
+\STATE Pretrain the behavior diffusion policy $p^\nu$ via \eqref{eq:elbo}
+\STATE Initialize $p^\pi$ with $p^\nu$
+\STATE {\color{gray}// Train $p^\pi$}
+\FOR{$i=1, 2, \cdots, N_{\text{total\_steps}}$}
+\STATE Sample minibatch $B=\{(s_i, a_i, s'_i, r_i)\}_{i=1}^{|B|}$ from $\mathcal{D}$
+\STATE Update $\{Q_{\psi_k}\}_{k=1}^K$ via \eqref{eq:critic_loss} using $B$
+\STATE Extend each $(s_i,a_i,s'_i,r_i)$ in $B$ by sampling $n\sim U[1, N]$ and $a^{n}_t\sim q_{n|0}(\cdot|a_t)$
+\STATE Update $\{V_{\phi_k}\}_{k=1}^K$ via \eqref{eq:critic_loss} using $B$
+\IF{$i$ \% actor\_update\_interval == 0}
+\STATE Update $p^\pi$ by performing gradient ascend with the objective defined in \eqref{problem:step_diff} and $B$
+\ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}

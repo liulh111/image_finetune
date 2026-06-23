@@ -1,0 +1,175 @@
+%%%%%%%% ICML 2025 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2025} with \usepackage[nohyperref]{icml2025} above.
+\usepackage{hyperref}
+
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+% \usepackage{icml2025}
+% \usepackage[preprint]{icml2025}
+\usepackage[accepted]{icml2025}
+
+% For theorems and such
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{multicol}
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{makecell}
+\hypersetup{urlcolor=red}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+% below are defined by gcx
+\include{math_command}
+\newcommand{\gcx}[1]{\textcolor{blue}{[gcx: #1]}}
+\newcommand{\algbb}{\texttt{BDPO}\xspace}
+% \newcommand{\algname}{Diffusion Spectral Representation\xspace}
+
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{Behavior-Regularized Diffusion Policy Optimization for Offline Reinforcement Learning}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Behavior-Regularized Diffusion Policy Optimization\\ for Offline Reinforcement Learning}
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the icml2025
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+% \icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Chen-Xiao Gao}{nju}
+\icmlauthor{Chenyang Wu}{nju}
+\icmlauthor{Mingjun Cao}{nju}
+\icmlauthor{Chenjun Xiao}{cuhksz}
+\icmlauthor{Yang Yu}{nju}
+\icmlauthor{Zongzhang Zhang}{nju}
+% \icmlauthor{Firstname7 Lastname7}{comp}
+%\icmlauthor{}{sch}
+% \icmlauthor{Firstname8 Lastname8}{sch}
+% \icmlauthor{Firstname8 Lastname8}{yyy,comp}
+%\icmlauthor{}{sch}
+%\icmlauthor{}{sch}
+\end{icmlauthorlist}
+
+\icmlaffiliation{nju}{National Key Laboratory for Novel Software Technology, Nanjing University, China \& School of Artificial
+Intelligence, Nanjing University, China}
+
+\icmlaffiliation{cuhksz}{The Chinese University of Hong Kong, Shenzhen, China}
+% \icmlaffiliation{comp}{Company Name, Location, Country}
+% \icmlaffiliation{sch}{School of ZZZ, Institute of WWW, Location, Country}
+
+\icmlcorrespondingauthor{Zongzhang Zhang}{zzzhang@nju.edu.cn}
+% \icmlcorrespondingauthor{Firstname2 Lastname2}{first2.last2@www.uk}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+% \icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+% \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
+\begin{abstract}
+\input{text/0.abstract}
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+\input{text/1.introduction}
+
+\section{Related Work}\label{sec:related_work}
+\input{text/3.related_work.tex}
+
+\section{Preliminaries}\label{sec:preliminary}
+\input{text/2.preliminaries}
+
+\section{Method}\label{sec:method}
+
+\input{text/4.methods.tex}
+
+\section{Experiments}\label{sec:experiments}
+\input{text/5.experiments}
+
+\vspace{-2mm}
+\section{Conclusions}\label{sec:conclusions}
+\input{text/6.conclusions}
+
+\newpage
+\section*{Acknowledgements}
+This work is primarily supported by the National Science Foundation of China (62276126, 62250069). Chenjun Xiao gratefully acknowledges funding from the National Natural Science Foundation of China (62406271). 
+
+\section*{Impact Statement}
+This paper presents work whose goal is to advance the field of machine learning. There are many potential societal consequences of our work, none of which we feel must be specifically highlighted here.
+
+\bibliography{main}
+\bibliographystyle{icml2025}
+
+
+\newpage
+\appendix
+\onecolumn
+\input{text/appendix.tex}
+
+
+\end{document}
+

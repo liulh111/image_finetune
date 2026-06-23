@@ -1,0 +1,283 @@
+\begin{thebibliography}{55}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ajay et~al.(2023)Ajay, Du, Gupta, Tenenbaum, Jaakkola, and Agrawal]{dd}
+Ajay, A., Du, Y., Gupta, A., Tenenbaum, J.~B., Jaakkola, T.~S., and Agrawal, P.
+\newblock Is conditional generative modeling all you need for decision making?
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Akhound{-}Sadegh et~al.(2024)Akhound{-}Sadegh, Rector{-}Brooks, Bose, Mittal, Lemos, Liu, Sendera, Ravanbakhsh, Gidel, Bengio, Malkin, and Tong]{idem}
+Akhound{-}Sadegh, T., Rector{-}Brooks, J., Bose, A.~J., Mittal, S., Lemos, P., Liu, C., Sendera, M., Ravanbakhsh, S., Gidel, G., Bengio, Y., Malkin, N., and Tong, A.
+\newblock Iterated denoising energy matching for sampling from boltzmann densities.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Alonso et~al.(2024)Alonso, Jelley, Micheli, Kanervisto, Storkey, Pearce, and Fleuret]{dwm}
+Alonso, E., Jelley, A., Micheli, V., Kanervisto, A., Storkey, A., Pearce, T., and Fleuret, F.
+\newblock Diffusion for world modeling: Visual details matter in atari.
+\newblock \emph{arXiv preprint arXiv:2405.12399}, 2024.
+
+\bibitem[An et~al.(2021)An, Moon, Kim, and Song]{EDAC}
+An, G., Moon, S., Kim, J., and Song, H.~O.
+\newblock Uncertainty-based offline reinforcement learning with diversified {Q}-ensemble.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2021.
+
+\bibitem[Bai et~al.(2022)Bai, Wang, Yang, Deng, Garg, Liu, and Wang]{pbrl}
+Bai, C., Wang, L., Yang, Z., Deng, Z., Garg, A., Liu, P., and Wang, Z.
+\newblock Pessimistic bootstrapping for uncertainty-driven offline reinforcement learning.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem[Brockman et~al.(2016)Brockman, Cheung, Pettersson, Schneider, Schulman, Tang, and Zaremba]{gym}
+Brockman, G., Cheung, V., Pettersson, L., Schneider, J., Schulman, J., Tang, J., and Zaremba, W.
+\newblock Open{AI} gym.
+\newblock \emph{arXiv preprint arXiv:1606.01540}, 2016.
+
+\bibitem[Chen et~al.(2023)Chen, Lu, Ying, Su, and Zhu]{sfbc}
+Chen, H., Lu, C., Ying, C., Su, H., and Zhu, J.
+\newblock Offline reinforcement learning via high-fidelity generative behavior modeling.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Chen et~al.(2024{\natexlab{a}})Chen, Lu, Wang, Su, and Zhu]{srpo}
+Chen, H., Lu, C., Wang, Z., Su, H., and Zhu, J.
+\newblock Score regularized policy optimization through diffusion behavior.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2024{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2021)Chen, Lu, Rajeswaran, Lee, Grover, Laskin, Abbeel, Srinivas, and Mordatch]{dt}
+Chen, L., Lu, K., Rajeswaran, A., Lee, K., Grover, A., Laskin, M., Abbeel, P., Srinivas, A., and Mordatch, I.
+\newblock Decision transformer: Reinforcement learning via sequence modeling.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2021.
+
+\bibitem[Chen et~al.(2024{\natexlab{b}})Chen, Wang, and Zhou]{dtql}
+Chen, T., Wang, Z., and Zhou, M.
+\newblock Diffusion policies creating a trust region for offline reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2405.19690}, 2024{\natexlab{b}}.
+
+\bibitem[Christodoulou(2019)]{sacd}
+Christodoulou, P.
+\newblock Soft actor-critic for discrete action settings.
+\newblock \emph{arXiv preprint arXiv:1910.07207}, 2019.
+
+\bibitem[Fang et~al.(2024)Fang, Liu, Zhang, Wang, and Jing]{dac}
+Fang, L., Liu, R., Zhang, J., Wang, W., and Jing, B.-Y.
+\newblock Diffusion actor-critic: Formulating constrained policy iteration as diffusion noise regression for offline reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2405.20555}, 2024.
+
+\bibitem[Franzese et~al.(2024)Franzese, BOUNOUA, and Michiardi]{minde}
+Franzese, G., BOUNOUA, M., and Michiardi, P.
+\newblock {MINDE}: Mutual information neural diffusion estimation.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2024.
+
+\bibitem[Fu et~al.(2020)Fu, Kumar, Nachum, Tucker, and Levine]{d4rl}
+Fu, J., Kumar, A., Nachum, O., Tucker, G., and Levine, S.
+\newblock {D4RL:} {D}atasets for deep data-driven reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2004.07219}, 2020.
+
+\bibitem[Fujimoto \& Gu(2021)Fujimoto and Gu]{td3bc}
+Fujimoto, S. and Gu, S.~S.
+\newblock A minimalist approach to offline reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2021.
+
+\bibitem[Fujimoto et~al.(2019)Fujimoto, Meger, and Precup]{bcq}
+Fujimoto, S., Meger, D., and Precup, D.
+\newblock Off-policy deep reinforcement learning without exploration.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2019.
+
+\bibitem[Gao et~al.(2024)Gao, Wu, Cao, Kong, Zhang, and Yu]{act}
+Gao, C.-X., Wu, C., Cao, M., Kong, R., Zhang, Z., and Yu, Y.
+\newblock {ACT:} {E}mpowering decision transformer with dynamic programming via advantage conditioning.
+\newblock In \emph{{AAAI} Conference on Artificial Intelligence (AAAI)}, 2024.
+
+\bibitem[Garg et~al.(2023)Garg, Hejna, Geist, and Ermon]{xql}
+Garg, D., Hejna, J., Geist, M., and Ermon, S.
+\newblock Extreme {Q}-learning: Maxent {RL} without entropy.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Haarnoja et~al.(2017)Haarnoja, Tang, Abbeel, and Levine]{sql}
+Haarnoja, T., Tang, H., Abbeel, P., and Levine, S.
+\newblock Reinforcement learning with deep energy-based policies.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2017.
+
+\bibitem[Haarnoja et~al.(2018)Haarnoja, Zhou, Abbeel, and Levine]{sac}
+Haarnoja, T., Zhou, A., Abbeel, P., and Levine, S.
+\newblock Soft actor-critic: Off-policy maximum entropy deep reinforcement learning with a stochastic actor.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2018.
+
+\bibitem[Hansen-Estruch et~al.(2023)Hansen-Estruch, Kostrikov, Janner, Kuba, and Levine]{idql}
+Hansen-Estruch, P., Kostrikov, I., Janner, M., Kuba, J.~G., and Levine, S.
+\newblock Idql: Implicit {Q}-learning as an actor-critic method with diffusion policies.
+\newblock \emph{arXiv preprint arXiv:2304.10573}, 2023.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ddpm}
+Ho, J., Jain, A., and Abbeel, P.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2020.
+
+\bibitem[Janner et~al.(2022)Janner, Du, Tenenbaum, and Levine]{diffuser}
+Janner, M., Du, Y., Tenenbaum, J.~B., and Levine, S.
+\newblock Planning with diffusion for flexible behavior synthesis.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2022.
+
+\bibitem[Jia et~al.(2024)Jia, Gao, Yin, Zhang, Chen, Xu, Yuan, Zhang, Zhou, and Yu]{redm}
+Jia, C., Gao, C., Yin, H., Zhang, F., Chen, X.-H., Xu, T., Yuan, L., Zhang, Z., Zhou, Z.-H., and Yu, Y.
+\newblock Policy rehearsing: Training generalizable policies for reinforcement learning.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2024.
+
+\bibitem[Kang et~al.(2023)Kang, Ma, Du, Pang, and Yan]{edp}
+Kang, B., Ma, X., Du, C., Pang, T., and Yan, S.
+\newblock Efficient diffusion policies for offline reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+
+\bibitem[Kingma \& Ba(2015)Kingma and Ba]{adam}
+Kingma, D.~P. and Ba, J.
+\newblock Adam: {A} method for stochastic optimization.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2015.
+
+\bibitem[Kostrikov et~al.(2022)Kostrikov, Nair, and Levine]{iql}
+Kostrikov, I., Nair, A., and Levine, S.
+\newblock Offline reinforcement learning with implicit {Q}-learning.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem[Kumar et~al.(2019)Kumar, Fu, Soh, Tucker, and Levine]{bear}
+Kumar, A., Fu, J., Soh, M., Tucker, G., and Levine, S.
+\newblock Stabilizing off-policy {Q}-learning via bootstrapping error reduction.
+\newblock In \emph{Advances in Neural Information Processing Systems (NearIPS)}, 2019.
+
+\bibitem[Kumar et~al.(2020{\natexlab{a}})Kumar, Gupta, and Levine]{discor}
+Kumar, A., Gupta, A., and Levine, S.
+\newblock Discor: Corrective feedback in reinforcement learning via distribution correction.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2020{\natexlab{a}}.
+
+\bibitem[Kumar et~al.(2020{\natexlab{b}})Kumar, Zhou, Tucker, and Levine]{cql}
+Kumar, A., Zhou, A., Tucker, G., and Levine, S.
+\newblock Conservative {Q}-learning for offline reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2020{\natexlab{b}}.
+
+\bibitem[Kumar et~al.(2021)Kumar, Singh, Tian, Finn, and Levine]{robotics}
+Kumar, A., Singh, A., Tian, S., Finn, C., and Levine, S.
+\newblock A workflow for offline model-free robotic reinforcement learning.
+\newblock In \emph{Conference on Robot Learning (CORL)}, 2021.
+
+\bibitem[Levine et~al.(2020)Levine, Kumar, Tucker, and Fu]{levine_survey}
+Levine, S., Kumar, A., Tucker, G., and Fu, J.
+\newblock Offline reinforcement learning: Tutorial, review, and perspectives on open problems.
+\newblock \emph{arXiv preprint arXiv:2005.01643}, 2020.
+
+\bibitem[Lu et~al.(2023)Lu, Chen, Chen, Su, Li, and Zhu]{qgpo}
+Lu, C., Chen, H., Chen, J., Su, H., Li, C., and Zhu, J.
+\newblock Contrastive energy prediction for exact energy-guided diffusion sampling in offline reinforcement learning.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Luo et~al.(2024)Luo, Xu, Cao, and Yu]{morec}
+Luo, F., Xu, T., Cao, X., and Yu, Y.
+\newblock Reward-consistent dynamics models are strongly generalizable for offline reinforcement learning.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2024.
+
+\bibitem[Mao et~al.(2024)Mao, Xu, Zhan, Zhang, and Zhang]{diffusiondice}
+Mao, L., Xu, H., Zhan, X., Zhang, W., and Zhang, A.
+\newblock Diffusion-dice: In-sample diffusion guidance for offline reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2024.
+
+\bibitem[Micheli et~al.(2023)Micheli, Alonso, and Fleuret]{twm}
+Micheli, V., Alonso, E., and Fleuret, F.
+\newblock Transformers are sample-efficient world models.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Nair et~al.(2020)Nair, Gupta, Dalal, and Levine]{awac}
+Nair, A., Gupta, A., Dalal, M., and Levine, S.
+\newblock Awac: Accelerating online reinforcement learning with offline datasets.
+\newblock \emph{arXiv preprint arXiv:2006.09359}, 2020.
+
+\bibitem[Oksendal(2013)]{oksendal2013stochastic}
+Oksendal, B.
+\newblock \emph{Stochastic differential equations: {A}n introduction with applications}.
+\newblock Springer Science \& Business Media, 2013.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell, Welinder, Christiano, Leike, and Lowe]{instruct_gpt}
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C.~L., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P.~F., Leike, J., and Lowe, R.
+\newblock Training language models to follow instructions with human feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2022.
+
+\bibitem[Ran et~al.(2023)Ran, Li, Zhang, Zhang, and Yu]{prdc}
+Ran, Y., Li, Y., Zhang, F., Zhang, Z., and Yu, Y.
+\newblock Policy regularization with dataset constraint for offline reinforcement learning.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Ren et~al.(2024)Ren, Lidard, Ankile, Simeonov, Agrawal, Majumdar, Burchfiel, Dai, and Simchowitz]{dppo}
+Ren, A.~Z., Lidard, J., Ankile, L.~L., Simeonov, A., Agrawal, P., Majumdar, A., Burchfiel, B., Dai, H., and Simchowitz, M.
+\newblock Diffusion policy policy optimization.
+\newblock \emph{arXiv preprint arXiv:2409.00588}, 2024.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and Klimov]{ppo}
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and Klimov, O.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Shribak et~al.(2024)Shribak, Gao, Li, Xiao, and Dai]{diffsr}
+Shribak, D., Gao, C.-X., Li, Y., Xiao, C., and Dai, B.
+\newblock Diffusion spectral representation for reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2406.16121}, 2024.
+
+\bibitem[Song et~al.(2020)Song, Meng, and Ermon]{ddim}
+Song, J., Meng, C., and Ermon, S.
+\newblock Denoising diffusion implicit models.
+\newblock \emph{arXiv preprint arXiv:2010.02502}, 2020.
+
+\bibitem[Song et~al.(2021)Song, Sohl{-}Dickstein, Kingma, Kumar, Ermon, and Poole]{diffusion_sde}
+Song, Y., Sohl{-}Dickstein, J., Kingma, D.~P., Kumar, A., Ermon, S., and Poole, B.
+\newblock Score-based generative modeling through stochastic differential equations.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2021.
+
+\bibitem[Sun et~al.(2023)Sun, Zhang, Jia, Lin, Ye, and Yu]{mobile}
+Sun, Y., Zhang, J., Jia, C., Lin, H., Ye, J., and Yu, Y.
+\newblock Model-bellman inconsistency for model-based offline reinforcement learning.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Tarasov et~al.(2023)Tarasov, Kurenkov, Nikulin, and Kolesnikov]{rebrac}
+Tarasov, D., Kurenkov, V., Nikulin, A., and Kolesnikov, S.
+\newblock Revisiting the minimalist approach to offline reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+
+\bibitem[Vinyals et~al.(2019)Vinyals, Babuschkin, Czarnecki, Mathieu, Dudzik, Chung, Choi, Powell, Ewalds, Georgiev, Oh, Horgan, Kroiss, Danihelka, Huang, Sifre, Cai, Agapiou, Jaderberg, Vezhnevets, Leblond, Pohlen, Dalibard, Budden, Sulsky, Molloy, Paine, G{\"{u}}l{\c{c}}ehre, Wang, Pfaff, Wu, Ring, Yogatama, W{\"{u}}nsch, McKinney, Smith, Schaul, Lillicrap, Kavukcuoglu, Hassabis, Apps, and Silver]{alphastar}
+Vinyals, O., Babuschkin, I., Czarnecki, W.~M., Mathieu, M., Dudzik, A., Chung, J., Choi, D.~H., Powell, R., Ewalds, T., Georgiev, P., Oh, J., Horgan, D., Kroiss, M., Danihelka, I., Huang, A., Sifre, L., Cai, T., Agapiou, J.~P., Jaderberg, M., Vezhnevets, A.~S., Leblond, R., Pohlen, T., Dalibard, V., Budden, D., Sulsky, Y., Molloy, J., Paine, T.~L., G{\"{u}}l{\c{c}}ehre, {\c{C}}., Wang, Z., Pfaff, T., Wu, Y., Ring, R., Yogatama, D., W{\"{u}}nsch, D., McKinney, K., Smith, O., Schaul, T., Lillicrap, T.~P., Kavukcuoglu, K., Hassabis, D., Apps, C., and Silver, D.
+\newblock Grandmaster level in starcraft {II} using multi-agent reinforcement learning.
+\newblock \emph{Nature}, 2019.
+
+\bibitem[Wang et~al.(2024)Wang, Wang, Jiang, Zou, Liu, Song, Wang, Xiao, Wu, Duan, et~al.]{wang2024diffusion}
+Wang, Y., Wang, L., Jiang, Y., Zou, W., Liu, T., Song, X., Wang, W., Xiao, L., Wu, J., Duan, J., et~al.
+\newblock Diffusion actor-critic with entropy regulator.
+\newblock \emph{arXiv preprint arXiv:2405.15177}, 2024.
+
+\bibitem[Wang et~al.(2023)Wang, Hunt, and Zhou]{dql}
+Wang, Z., Hunt, J.~J., and Zhou, M.
+\newblock Diffusion policies as an expressive policy class for offline reinforcement learning.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Wu et~al.(2019)Wu, Tucker, and Nachum]{brac}
+Wu, Y., Tucker, G., and Nachum, O.
+\newblock Behavior regularized offline reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:1911.11361}, 2019.
+
+\bibitem[Xu et~al.(2023)Xu, Jiang, Li, Yang, Wang, Chan, and Zhan]{ivr}
+Xu, H., Jiang, L., Li, J., Yang, Z., Wang, Z., Chan, W. K.~V., and Zhan, X.
+\newblock Offline {RL} with no {OOD} actions: In-sample learning via implicit value regularization.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Yu et~al.(2020)Yu, Thomas, Yu, Ermon, Zou, Levine, Finn, and Ma]{mopo}
+Yu, T., Thomas, G., Yu, L., Ermon, S., Zou, J.~Y., Levine, S., Finn, C., and Ma, T.
+\newblock {MOPO:} {M}odel-based offline policy optimization.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2020.
+
+\bibitem[Zhang et~al.(2024{\natexlab{a}})Zhang, Luo, Sj{\"o}lund, Sch{\"o}n, and Mattsson]{dpqe}
+Zhang, R., Luo, Z., Sj{\"o}lund, J., Sch{\"o}n, T.~B., and Mattsson, P.
+\newblock Entropy-regularized diffusion policy with q-ensembles for offline reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2024{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2024{\natexlab{b}})Zhang, Luo, Sj{\"o}lund, Sch{\"o}n, and Mattsson]{zhang2024entropy}
+Zhang, R., Luo, Z., Sj{\"o}lund, J., Sch{\"o}n, T.~B., and Mattsson, P.
+\newblock Entropy-regularized diffusion policy with {Q}-ensembles for offline reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2402.04080}, 2024{\natexlab{b}}.
+
+\end{thebibliography}

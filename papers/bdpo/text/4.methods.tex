@@ -1,0 +1,151 @@
+\subsection{Pathwise KL Regularization}\label{sec:pathwise_kl}
+
+In behavior-regularized RL, previous methods typically regularize action distribution, i.e., the marginalized distribution $p^{\pi, s}_{0}$. Instead, we shift our attention to the KL divergence with respect to the diffusion path $a^{0:N}$, which can be further decomposed thanks to the Markov property: 
+\begin{equation}\label{eq:pathwise_kl}
+    \begin{aligned}
+        &\KL{p^{\pi, s}_{0:N}}{p^{\nu, s}_{0:N}}\\
+        &=\mathbb{E}\left[\log\frac{p^{\pi, s}_{0:N}(a^{0:N})}{p^{\nu, s}_{0:N}(a^{0:N})}\right]\\
+        &=\mathbb{E}\left[\log \frac{p_N^{\pi,s}(a^N)\prod_{n=1}^Np_{n-1|n}^{\pi,s}(a^{n-1}|a^n)}{p_N^{\nu,s}(a^N)\prod_{n=1}^Np_{n-1|n}^{\nu,s}(a^{n-1}|a^n)}\right]\\
+        &=\mathbb{E}\left[\log \frac{p^{\pi, s}_{N}(a^{N})}{p^{\nu, s}_{N}(a^{N})}+\sum_{n=1}^{N}\log\frac{p^{\pi, s,a^n}_{n-1|n}(a^{n-1})}{p^{\nu, s,a^n}_{n-1|n}(a^{n-1})}\right]\\
+        &=\mathbb{E}\left[\sum_{n=1}^{N}\KL{p^{\pi, s,a^n}_{n-1|n}}{p^{\nu, s,a^n}_{n-1|n}}\right]. 
+    \end{aligned}
+\end{equation}
+Here, the expectation is taken w.r.t. $a^{0:N}\sim p^{\pi, s}_{0:N}$, $p^{\nu}$ is the behavior diffusion policy trained via \eqref{eq:elbo} on the offline dataset $\mathcal{D}$ to approximate the data-collection policy, and the last equation holds due to $p_N^{\pi,s}=p_{N}^{\nu,s}=\mathcal{N}(0, I)$. In the following, we abbreviate $\KL{p^{\pi, s,a^n}_{n-1|n}}{p^{\nu, s,a^n}_{n-1|n}}$ with $\ell^{\pi,s}_{n}(a^n)$.
+
+Based on this decomposition, we present the pathwise KL-regularized RL problem.
+\begin{definition}\label{problem:pathwise_kl_brl}
+    \textit{(Pathwise KL-Regularized RL)} Let $p^{\nu}$ be the behavior diffusion process. The pathwise KL-regularized RL problem seeks to maximize the following objective
+    \begin{equation}
+    \label{eq:pathwise_kl_obj}
+        \max_{p^\pi}\  \mathbb{E}\left[\sum_{t=0}^\infty \gamma^t\left(R(s_t,a_t^0)-\eta\sum_{n=1}^N\ell_{n}^{\pi,s_t}(a_t^n)\right)\right].
+    \end{equation}
+where the expectation is taken w.r.t. trajectories following $p^\pi$ and the dynamics $T$.
+\end{definition}
+
+Although our problem calculates the accumulated discrepancies along the diffusion path as penalties, it actually preserves the same optimal solution to \eqref{eq:brl_obj}, which only regularizes the action distribution at diffusion step $n=0$. The following theorem captures the equivalence. 
+\begin{theorem}{(Proof in Appendix~\ref{thm:pathwise_kl_equivalence})}
+    Let $p^\nu$ be the behavior diffusion process. The optimal diffusion policy $p^{*}$ of the pathwise KL-regularized RL problem in \eqref{eq:pathwise_kl_obj} is also the optimal policy $\pi^*$ of the KL regularized objective in \eqref{eq:brl_obj}, in the sense that $\pi^*(a|s)=\int p^{*, s}_{0:N}(a^{0:N})\delta(a-a^0)\mathrm{d}a^{0:N} \ \forall s\in\mathcal{S}$, where $\delta$ is the Dirac delta function. 
+\end{theorem}
+% \begin{proof}
+%     Proof can be found in Appendix~\ref{thm:pathwise_kl_equivalence}. 
+% \end{proof}
+
+That said, we can safely optimize \eqref{eq:pathwise_kl_obj} and ultimately arrive at the solution that also maximizes the original KL-regularized RL problem. As will be demonstrated in the following sections, our formulation of the penalty leads to an analytical and efficient algorithm, since each single-step reverse transition is tractable.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/intro_backup.pdf}
+    \caption{Semantic illustration of the TD backup for the Q-value function $Q^\pi$ (blue) and diffusion value function $V^{\pi,s}_n$ (orange). The update of $Q^\pi$ (\eqref{eq:upper_critic}) requires reward, penalties along the diffusion trajectory, and the Q-values at the next state. The update of $V^{\pi,s}_n$ (\eqref{eq:intermediate_value}) involves the single-step penalty and the diffusion value at the next diffusion step $n-1$. }
+    \label{fig:intro_backup}
+\end{figure*}
+
+\subsection{Actor-Critic across Two Time Scales}
+To solve the pathwise KL-regularized RL (\eqref{eq:pathwise_kl_obj}), we can employ an actor-critic framework. Specifically, we maintain a diffusion policy $p^\pi$ and a critic $Q^\pi$. The update target of the critic $Q^\pi$ is specified as the standard TD target in the environment MDP:
+\begin{equation}\label{eq:upper_critic}
+\begin{aligned}
+    \scalemath{0.95}{\mathcal{B}^\pi Q^\pi(s,a)=R(s, a)+\gamma \mathbb{E}\Big[Q^\pi(s', a'^0)-\eta\sum_{n=1}^N\ell^{\pi,s'}_{n}(a'^n)\Big],}
+\end{aligned}
+\end{equation}
+
+i.e., we sample diffusion paths $a'^{0:N}$ at the next state $s'$, calculate the Q-values $Q^\pi(s', a'^0)$ and the accumulated penalties along the path, and perform a one-step TD backup. For the diffusion policy, its objective can be expressed as:
+\begin{equation}\label{problem:path_diff}
+    \begin{aligned}
+        \max_{p^{\pi,s}}\ 
+        \underset{{a^{0:N}\sim p^{\pi,s}_{0:N}}}{\mathbb{E}}\left[Q^\pi(s, a^0)-\eta\sum_{n=1}^N\ell^{\pi,s}_{n}(a^n)\right].
+    \end{aligned}
+\end{equation}
+
+At first glance, one might treat the pathwise KL as a whole and optimize the diffusion policy by back-propagating the gradient throughout the sampled path $a^{0:N}$, similar to Diffusion-QL~\citep{dql}. Nevertheless, this requires preserving the computation graph of all diffusion steps and therefore incurs considerable computational overhead. Moreover, the inherent stochasticity of the diffusion path introduces significant variance during optimization, which can hinder the overall performance. 
+
+Instead, we opt for a bi-level TD learning framework. The upper level updates $Q^\pi$ according to \eqref{eq:upper_critic} and operates in the environment MDP. In the lower level, we maintain \textit{diffusion value functions} $V^{\pi, s}_n(a^n)$, which are designed to estimate the values at intermediate diffusion steps. The TD target of $V^{\pi,s}_{n}$ is specified as:
+\begin{equation}\label{eq:intermediate_value}
+    \begin{aligned}
+        &\mathcal{T}_0^{\pi}V_0^{\pi,s}(a^0)=Q^\pi(s,a^0),\\
+        &\mathcal{T}_n^{\pi}V_n^{\pi,s}(a^n)=-\eta \ell^{\pi,s}_n(a^n)+\underset{ p^{\pi,s,a^n}_{n-1|n}}{\mathbb{E}}\left[V_{n-1}^{\pi,s}(a^{n-1})\right].
+    \end{aligned}
+\end{equation}
+Intuitively, $V^{\pi, s}_n(a^n)$ receives the state $s$, intermediate generation result $a^n$, and the diffusion step $n$ as input, and estimates the expected cumulative penalties of continuing the diffusion path at $a^n$ and step $n$. It operates completely inside each environment timestep and performs TD updates across the diffusion steps. The semantic illustration of the value function backups is presented in Figure~\ref{fig:intro_backup}. The following proposition demonstrates the convergence of policy evaluation. 
+
+With the help of $V^{\pi, s}_n$, we can update the policy according to
+\begin{equation}\label{problem:step_diff}
+    \begin{aligned}
+    &\max_{p^{\pi,s,a^n}_{n-1|n}}\ \ -\eta\ell^{\pi,s}_n(a^n) + \underset{p^{\pi,s,a^n}_{n-1|n}}{\mathbb{E}}\left[V^{\pi,s}_{n-1}(a^{n-1})\right].
+    \end{aligned}
+\end{equation}
+
+\input{text/algorithm.tex}
+
+Note that the maximization is over every state $s$, diffusion step $n$, and intermediate action $a^n$. In this way, we only require single-step reverse diffusion during policy improvement, providing an efficient solution to the problem defined in~\eqref{problem:step_diff}.
+
+Through simple recursion, we can demonstrate that updating $p^{\pi}$ with \eqref{problem:step_diff} leads to the same optimal solution to the original policy objective \eqref{problem:path_diff}.
+
+\begin{assumption}
+\label{ass}
+Let $\Pi$ be the set of admissible diffusion policies satisfying $\forall\,p^\pi\in\Pi,\;\forall\,s\in\mathcal{S}$,
+\[
+\sup_{a^0\in\mathcal{A}}\;\frac{\pi(a^0|s)}{\nu(a^0|s)}=\frac{\int p_{0:N}^{\pi,s}(a^{0:N})\mathrm{d}a^{1:N}}{\int p_{0:N}^{\nu,s}(a^{0:N})\mathrm{d}a^{1:N}}<\infty,
+\]
+where $p^\nu$ is the behavior diffusion policy.
+\end{assumption}
+\begin{proposition}{(Soft Policy Improvement, proof in Appendix~\ref{proposition:policy_improvement})}\label{main_proposition:policy_improvement}
+Let $p^{\pi_{\textrm{new}}}$ be the optimizer of the problem defined in \eqref{problem:step_diff}. Under Assumption~\ref{ass}, $V^{\pi_{\textrm{new}},s}_n(a^n)\geq V^{\pi_{\textrm{old}},s}_n(a^n)$ holds for all $n\in\{0, 1, \ldots, N\}$ and $(s, a)\in\mathcal{S}\times\mathcal{A}$.
+\end{proposition}
+% \begin{proof}
+%     Proof can be found in Appendix~\ref{proposition:policy_improvement}. 
+% \end{proof}
+
+Combining Proposition~\ref{main_proposition:policy_improvement} and a similar convergence argument in Soft Actor Critic~\cite{sac}, we obtain that the policy is guaranteed to improve w.r.t. the pathwise KL problem in Definition~\ref{problem:pathwise_kl_brl}. 
+
+\begin{proposition}{(Policy Iteration, proof in Appendix~\ref{proposition:policy_iteration})}
+Under Assumption~\ref{ass}, repeated application of soft policy evaluation in \eqref{eq:upper_critic} and \eqref{eq:intermediate_value} and soft policy improvement in \eqref{problem:step_diff} from any $p^\pi\in\Pi$ converges to a policy $p^{\pi^*}$ such that $V_n^{\pi^*,s}(a)\geq V_n^{\pi,s}(a)$ for all $p^\pi\in\Pi$, $n\in\{0,1,\ldots,N\}$, and $(s,a)\in\mathcal{S}\times\mathcal{A}$.
+\end{proposition}
+% \begin{proof}
+% Proof can be found in Appendix~\ref{proposition:policy_iteration}. 
+% \end{proof}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/5.1_actor.pdf}
+    \caption{Generation paths of \algbb on the \textit{8gaussian} (top), \textit{2spirals} (middle), and \textit{moons} (down) datasets. The regularization strength is set to $\eta=0.06$, which is identical to Figure~\ref{fig:2d_data}. The first five columns depict the diffusion generation process at different time intervals, with green dots indicating the starting points of these intervals, red dots indicating the ending points, and grey lines in between representing intermediate samples. The background color depicts the output from the diffusion value functions $V^{\pi,s}_n$ in the entire 2D space. The rightmost figures depict the final action samples. We use DDIM sampling~\citep{ddim} for better illustration.}\label{fig:2d_actor}
+\end{figure*}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/5.1_data.pdf}
+    \caption{Illustration of the \textit{8gaussians}, \textit{2spirals}, and \textit{moons} datasets. The top row depicts the original data distribution $p_{\text{data}}$, while the second row depicts the target distribution $p_{\text{target}}$ at $\eta=0.06$ by re-sampling data points according to their energies.}\label{fig:2d_data}
+\end{figure}
+
+
+\textbf{Remark (Actor-critic across two time scales). }Our treatment of the environment MDP and the (reverse) diffusion MDP resembles DPPO~\citep{dppo}, which unfolds the diffusion steps into the environment MDP and employs the PPO~\citep{ppo} algorithm to optimize the diffusion policy in the extended MDP. Compared to DPPO, our method adds a penalty in each diffusion step to implement behavior regularization. Besides, we maintain two types of value functions to account for both inter-timestep and inner-timestep policy evaluation, thereby offering low-variance policy gradients. 
+
+\subsection{Practical Implementation}
+\textbf{Calculation of KL Divergence. }
+Since each single-step reverse transition $p_{n-1|n}^{\pi,s,a_n}$ is approximately parameterized as an isotropic Gaussian distribution (\eqref{eq:reverse_diff}), the KL divergence is analytically expressed as
+\begin{equation}
+    \begin{aligned}
+        \KL{p^{\pi, s,a^n}_{n-1|n}}{p^{\nu, s,a^n}_{n-1|n}}=\frac{\|\mu^{\pi,s}_n(a^n)-\mu^{\nu,s}_n(a^n)\|^2}{2\sigma_n^2}.
+    \end{aligned}
+\end{equation}
+That is, each penalty term is simply the discrepancy between the mean vectors of the reverse transitions, weighted by a factor depending on the noise schedule. The transition of the reverse process becomes Gaussian exactly in the continuous limit, in which case, the KL divergence can be computed through Girsanov's theorem~\citep{oksendal2013stochastic}, and the sum of mean squared errors (MSEs) is replaced by an integral \cite{minde}. In Appendix~\ref{appsec:continuous_time}, we demonstrate that the pathwise KL is consistent with the result from Girsanov's theorem in the limit of infinitesimal diffusion step size. 
+
+\input{table/d4rl.tex}
+
+\textbf{Selection of States, Diffusion Steps and Actions. }The policy improvement step requires training $V^{\pi,s}_n$ and improving $p^\pi$ on every $(s, a^n, n)$ triplet sampled from the on-policy distribution of $p^\pi$. However, we employ an off-policy approach, by sampling $(s, a)$ from the dataset, $n$ according to the Uniform distribution $U[1, N]$ and $a^n$ according to $q_{n|0}(\cdot|a)$, which we found works sufficiently well in our experiments. We note that on-policy sampling $(s, a^n, n)$ may further benefit the performance at the cost of sampling and restoring these triplets on the fly, similar to what iDEM~\citep{idem} did in its experiments. 
+
+\textbf{Lower-Confidence Bound (LCB) Value Target. }Following existing practices~\citep{dpqe,dac}, we use an ensemble of $K=10$ value networks $\{\psi_k, \phi_k\}_{i=k}^{K}$ for both $V^{\pi,s}_{n}$ and $Q^\pi$ and calculate their target as the LCB of \eqref{eq:upper_critic} and \eqref{eq:intermediate_value}:
+\begin{equation}
+\begin{aligned}
+    y_Q&=\mathrm{Avg}_k[\mathcal{B}^\pi Q^\pi_{\bar{\psi}_k}]-\rho \sqrt{\mathrm{Var}_k[\mathcal{B}^\pi Q^\pi_{\bar{\psi}_k}]},\\
+    y_V&=\mathrm{Avg}_k[\mathcal{T}_n^\pi V^{\pi,s}_{n,\bar{\phi}_k}]-\rho \sqrt{\mathrm{Var}_k[\mathcal{T}_n^\pi V^{\pi,s}_{n,\bar{\phi}_k}]},
+\end{aligned}
+\end{equation}
+where $\bar{\phi}_k$ and $\bar{\psi}_k$ are exponentially moving average versions of the value networks, and $\mathrm{Avg},\mathrm{Var}$ denote averages and variances respectively. The objectives for value networks are to minimize the mean-squared error between the prediction and the target:
+\begin{equation}\label{eq:critic_loss}
+    \begin{aligned}
+        \mathcal{L}(\{\psi_k\}_{k=1}^{K})&=\mathbb{E}_{(s, a, s',r)\sim\mathcal{D}}\left[\sum_{k=1}^K(y_Q - Q^\pi_{\psi_k}(s, a))^2\right],\\
+        \mathcal{L}(\{\phi_k\}_{k=1}^{K})&=\mathbb{E}_{(s, a)\sim\mathcal{D}, n,a^n}\left[\sum_{k=1}^K(y_V - V^{\pi,s}_{n,\phi_k}(a^n))^2\right],
+    \end{aligned}
+\end{equation}
+where $n$ is sampled from $U[1, N]$ and $a^n$ from $q_{n|0}(\cdot|a)$. 
+
+The pseudo-code for \algbb is provided in Algorithm~\ref{code}.

@@ -1,0 +1,33 @@
+# @package _global_
+
+algo:
+  name: dpmd
+  backbone_cls: mlp
+  critic_hidden_dims: [256, 256]
+  critic_activation: relu
+  critic_lr: 0.0003
+  temp_lr: 0.0003
+  discount: 0.99
+  num_samples: 10
+  num_particles: 64
+  target_kl: ${oc.select:algo.target_kl_dict.${task}, 2.0}
+  ema: 0.005
+  old_policy_update_interval: 1000
+  additive_noise: 0.2
+  diffusion:
+    backbone_cls: ${algo.backbone_cls}
+    activation: mish
+    time_dim: 64
+    hidden_dims: [256, 256, 256]
+    lr: 0.0001
+    end_lr: null
+    lr_decay_steps: null
+    lr_decay_begin: null
+    steps: 20
+    clip_sampler: true
+    x_min: -1.0
+    x_max: 1.0
+    solver: ddpm
+  target_kl_dict:
+    Hopper-v5: 3.0
+    Ant-v5: 1.0

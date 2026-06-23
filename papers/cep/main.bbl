@@ -1,0 +1,494 @@
+\begin{thebibliography}{75}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ajay et~al.(2022)Ajay, Du, Gupta, Tenenbaum, Jaakkola, and
+  Agrawal]{dd}
+Ajay, A., Du, Y., Gupta, A., Tenenbaum, J., Jaakkola, T., and Agrawal, P.
+\newblock Is conditional generative modeling all you need for decision-making?
+\newblock \emph{arXiv preprint arXiv:2211.15657}, 2022.
+
+\bibitem[Bao et~al.(2022{\natexlab{a}})Bao, Li, Zhu, and
+  Zhang]{bao2022analytic}
+Bao, F., Li, C., Zhu, J., and Zhang, B.
+\newblock Analytic-{DPM}: An analytic estimate of the optimal reverse variance
+  in diffusion probabilistic models.
+\newblock In \emph{International Conference on Learning Representations},
+  2022{\natexlab{a}}.
+
+\bibitem[Bao et~al.(2022{\natexlab{b}})Bao, Zhao, Hao, Li, Li, and
+  Zhu]{bao2022equivariant}
+Bao, F., Zhao, M., Hao, Z., Li, P., Li, C., and Zhu, J.
+\newblock Equivariant energy-guided sde for inverse molecular design.
+\newblock \emph{arXiv preprint arXiv:2209.15408}, 2022{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2022)Chen, Lu, Ying, Su, and Zhu]{sfbc}
+Chen, H., Lu, C., Ying, C., Su, H., and Zhu, J.
+\newblock Offline reinforcement learning via high-fidelity generative behavior
+  modeling.
+\newblock \emph{arXiv preprint arXiv:2209.14548}, 2022.
+
+\bibitem[Chen et~al.(2021{\natexlab{a}})Chen, Zhang, Zen, Weiss, Norouzi, and
+  Chan]{chen2020wavegrad}
+Chen, N., Zhang, Y., Zen, H., Weiss, R.~J., Norouzi, M., and Chan, W.
+\newblock Wavegrad: Estimating gradients for waveform generation.
+\newblock In \emph{International Conference on Learning Representations},
+  2021{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2021{\natexlab{b}})Chen, Zhang, Zen, Weiss, Norouzi,
+  Dehak, and Chan]{chen2021wavegrad}
+Chen, N., Zhang, Y., Zen, H., Weiss, R.~J., Norouzi, M., Dehak, N., and Chan,
+  W.
+\newblock Wavegrad 2: Iterative refinement for text-to-speech synthesis.
+\newblock In \emph{International Speech Communication Association}, pp.\
+  3765--3769, 2021{\natexlab{b}}.
+
+\bibitem[Chung et~al.(2022)Chung, Kim, Mccann, Klasky, and
+  Ye]{chung2022diffusion}
+Chung, H., Kim, J., Mccann, M.~T., Klasky, M.~L., and Ye, J.~C.
+\newblock Diffusion posterior sampling for general noisy inverse problems.
+\newblock \emph{arXiv preprint arXiv:2209.14687}, 2022.
+
+\bibitem[Dhariwal \& Nichol(2021)Dhariwal and Nichol]{diffusion_beat_gan}
+Dhariwal, P. and Nichol, A.~Q.
+\newblock Diffusion models beat {GAN}s on image synthesis.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~34, pp.\  8780--8794, 2021.
+
+\bibitem[Fu et~al.(2020)Fu, Kumar, Nachum, Tucker, and Levine]{d4rl}
+Fu, J., Kumar, A., Nachum, O., Tucker, G., and Levine, S.
+\newblock D4rl: Datasets for deep data-driven reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2004.07219}, 2020.
+
+\bibitem[Fujimoto et~al.(2018)Fujimoto, van Hoof, and Meger]{td3}
+Fujimoto, S., van Hoof, H., and Meger, D.
+\newblock Addressing function approximation error in actor-critic methods.
+\newblock In Dy, J. and Krause, A. (eds.), \emph{Proceedings of the 35th
+  International Conference on Machine Learning}, volume~80 of \emph{Proceedings
+  of Machine Learning Research}, pp.\  1587--1596, Stockholmsmässan, Stockholm
+  Sweden, 10--15 Jul 2018. PMLR.
+\newblock URL \url{http://proceedings.mlr.press/v80/fujimoto18a.html}.
+
+\bibitem[Fujimoto et~al.(2019)Fujimoto, Meger, and Precup]{bcq}
+Fujimoto, S., Meger, D., and Precup, D.
+\newblock Off-policy deep reinforcement learning without exploration.
+\newblock In \emph{Proceedings of the 36th International Conference on Machine
+  Learning}, volume~97 of \emph{Proceedings of Machine Learning Research}, pp.\
+   2052--2062. PMLR, 09--15 Jun 2019.
+
+\bibitem[Goo \& Niekum(2022)Goo and Niekum]{arq}
+Goo, W. and Niekum, S.
+\newblock Know your boundaries: The necessity of explicit behavioral cloning in
+  offline rl.
+\newblock \emph{arXiv preprint arXiv:2206.00695}, 2022.
+
+\bibitem[Goodfellow et~al.(2020)Goodfellow, Pouget-Abadie, Mirza, Xu,
+  Warde-Farley, Ozair, Courville, and Bengio]{goodfellow2020generative}
+Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair,
+  S., Courville, A., and Bengio, Y.
+\newblock Generative adversarial networks.
+\newblock \emph{Communications of the ACM}, 63\penalty0 (11):\penalty0
+  139--144, 2020.
+
+\bibitem[Graikos et~al.(2022)Graikos, Malkin, Jojic, and
+  Samaras]{graikos2022diffusion}
+Graikos, A., Malkin, N., Jojic, N., and Samaras, D.
+\newblock Diffusion models as plug-and-play priors.
+\newblock \emph{arXiv preprint arXiv:2206.09012}, 2022.
+
+\bibitem[Gu et~al.(2022)Gu, Chen, Bao, Wen, Zhang, Chen, Yuan, and
+  Guo]{gu2022vector}
+Gu, S., Chen, D., Bao, J., Wen, F., Zhang, B., Chen, D., Yuan, L., and Guo, B.
+\newblock Vector quantized diffusion model for text-to-image synthesis.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pp.\  10696--10706, 2022.
+
+\bibitem[Hinton(2002)]{hinton2002training}
+Hinton, G.~E.
+\newblock Training products of experts by minimizing contrastive divergence.
+\newblock \emph{Neural computation}, 14\penalty0 (8):\penalty0 1771--1800,
+  2002.
+
+\bibitem[Ho \& Salimans(2021)Ho and Salimans]{ho2021classifier}
+Ho, J. and Salimans, T.
+\newblock Classifier-free diffusion guidance.
+\newblock In \emph{NeurIPS 2021 Workshop on Deep Generative Models and
+  Downstream Applications}, 2021.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020denoising}
+Ho, J., Jain, A., and Abbeel, P.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~33, pp.\  6840--6851, 2020.
+
+\bibitem[Ho et~al.(2022{\natexlab{a}})Ho, Chan, Saharia, Whang, Gao, Gritsenko,
+  Kingma, Poole, Norouzi, Fleet, et~al.]{ho2022imagen}
+Ho, J., Chan, W., Saharia, C., Whang, J., Gao, R., Gritsenko, A., Kingma,
+  D.~P., Poole, B., Norouzi, M., Fleet, D.~J., et~al.
+\newblock Imagen video: High definition video generation with diffusion models.
+\newblock \emph{arXiv preprint arXiv:2210.02303}, 2022{\natexlab{a}}.
+
+\bibitem[Ho et~al.(2022{\natexlab{b}})Ho, Saharia, Chan, Fleet, Norouzi, and
+  Salimans]{ho2022cascaded}
+Ho, J., Saharia, C., Chan, W., Fleet, D.~J., Norouzi, M., and Salimans, T.
+\newblock Cascaded diffusion models for high fidelity image generation.
+\newblock \emph{Journal of Machine Learning Research}, 23\penalty0
+  (47):\penalty0 1--33, 2022{\natexlab{b}}.
+
+\bibitem[Ho et~al.(2022{\natexlab{c}})Ho, Salimans, Gritsenko, Chan, Norouzi,
+  and Fleet]{ho2022video}
+Ho, J., Salimans, T., Gritsenko, A., Chan, W., Norouzi, M., and Fleet, D.~J.
+\newblock Video diffusion models.
+\newblock \emph{arXiv preprint arXiv:2204.03458}, 2022{\natexlab{c}}.
+
+\bibitem[Hoogeboom et~al.(2022)Hoogeboom, Satorras, Vignac, and
+  Welling]{hoogeboom2022equivariant}
+Hoogeboom, E., Satorras, V.~G., Vignac, C., and Welling, M.
+\newblock Equivariant diffusion for molecule generation in 3{D}.
+\newblock In \emph{International Conference on Machine Learning}, pp.\
+  8867--8887. PMLR, 2022.
+
+\bibitem[Janner et~al.(2022)Janner, Du, Tenenbaum, and Levine]{diffuser}
+Janner, M., Du, Y., Tenenbaum, J., and Levine, S.
+\newblock Planning with diffusion for flexible behavior synthesis.
+\newblock In \emph{International Conference on Machine Learning}, 2022.
+
+\bibitem[Karras et~al.(2022)Karras, Aittala, Aila, and
+  Laine]{karras2022elucidating}
+Karras, T., Aittala, M., Aila, T., and Laine, S.
+\newblock Elucidating the design space of diffusion-based generative models.
+\newblock \emph{arXiv preprint arXiv:2206.00364}, 2022.
+
+\bibitem[Kawar et~al.(2022)Kawar, Elad, Ermon, and Song]{kawar2022denoising}
+Kawar, B., Elad, M., Ermon, S., and Song, J.
+\newblock Denoising diffusion restoration models.
+\newblock \emph{arXiv preprint arXiv:2201.11793}, 2022.
+
+\bibitem[Kingma \& Welling(2014)Kingma and Welling]{kingma2013auto}
+Kingma, D.~P. and Welling, M.
+\newblock Auto-encoding variational bayes.
+\newblock In \emph{International Conference on Learning Representations}, 2014.
+
+\bibitem[Kingma et~al.(2021)Kingma, Salimans, Poole, and
+  Ho]{kingma2021variational}
+Kingma, D.~P., Salimans, T., Poole, B., and Ho, J.
+\newblock Variational diffusion models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2021.
+
+\bibitem[Kostrikov et~al.(2022)Kostrikov, Nair, and Levine]{iql}
+Kostrikov, I., Nair, A., and Levine, S.
+\newblock Offline reinforcement learning with implicit {Q}-learning.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[Kumar et~al.(2019)Kumar, Fu, Tucker, and Levine]{bear}
+Kumar, A., Fu, J., Tucker, G., and Levine, S.
+\newblock Stabilizing off-policy q-learning via bootstrapping error reduction.
+\newblock \emph{CoRR}, abs/1906.00949, 2019.
+\newblock URL \url{http://arxiv.org/abs/1906.00949}.
+
+\bibitem[Kumar et~al.(2020)Kumar, Zhou, Tucker, and Levine]{cql}
+Kumar, A., Zhou, A., Tucker, G., and Levine, S.
+\newblock Conservative {Q}-learning for offline reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2006.04779}, 2020.
+
+\bibitem[Kwon \& Ye(2022)Kwon and Ye]{kwon2022diffusion}
+Kwon, G. and Ye, J.~C.
+\newblock Diffusion-based image translation using disentangled style and
+  content representation.
+\newblock \emph{arXiv preprint arXiv:2209.15264}, 2022.
+
+\bibitem[Langley(2000)]{langley00}
+Langley, P.
+\newblock Crafting papers on machine learning.
+\newblock In Langley, P. (ed.), \emph{Proceedings of the 17th International
+  Conference on Machine Learning (ICML 2000)}, pp.\  1207--1216, Stanford, CA,
+  2000. Morgan Kaufmann.
+
+\bibitem[Li et~al.(2022)Li, Thickstun, Gulrajani, Liang, and
+  Hashimoto]{li2022diffusion}
+Li, X.~L., Thickstun, J., Gulrajani, I., Liang, P., and Hashimoto, T.~B.
+\newblock Diffusion-{LM} improves controllable text generation.
+\newblock \emph{arXiv preprint arXiv:2205.14217}, 2022.
+
+\bibitem[Lillicrap et~al.(2016)Lillicrap, Hunt, Pritzel, Heess, Erez, Tassa,
+  Silver, and Wierstra]{ddpg}
+Lillicrap, T.~P., Hunt, J.~J., Pritzel, A., Heess, N. M.~O., Erez, T., Tassa,
+  Y., Silver, D., and Wierstra, D.
+\newblock Continuous control with deep reinforcement learning.
+\newblock \emph{ICLR}, 2016.
+
+\bibitem[Liu et~al.(2022)Liu, Li, Ren, Chen, and Zhao]{liu2022diffsinger}
+Liu, J., Li, C., Ren, Y., Chen, F., and Zhao, Z.
+\newblock Diffsinger: Singing voice synthesis via shallow diffusion mechanism.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~36, pp.\  11020--11028, 2022.
+
+\bibitem[Lu et~al.(2022{\natexlab{a}})Lu, Zheng, Bao, Chen, Li, and
+  Zhu]{lu2022maximum}
+Lu, C., Zheng, K., Bao, F., Chen, J., Li, C., and Zhu, J.
+\newblock Maximum likelihood training for score-based diffusion odes by high
+  order denoising score matching.
+\newblock In \emph{International Conference on Machine Learning}, pp.\
+  14429--14460. PMLR, 2022{\natexlab{a}}.
+
+\bibitem[Lu et~al.(2022{\natexlab{b}})Lu, Zhou, Bao, Chen, Li, and
+  Zhu]{lu2022dpm}
+Lu, C., Zhou, Y., Bao, F., Chen, J., Li, C., and Zhu, J.
+\newblock Dpm-solver: A fast ode solver for diffusion probabilistic model
+  sampling in around 10 steps.
+\newblock \emph{arXiv preprint arXiv:2206.00927}, 2022{\natexlab{b}}.
+
+\bibitem[Lu et~al.(2022{\natexlab{c}})Lu, Zhou, Bao, Chen, Li, and
+  Zhu]{lu2022dpm++}
+Lu, C., Zhou, Y., Bao, F., Chen, J., Li, C., and Zhu, J.
+\newblock Dpm-solver++: Fast solver for guided sampling of diffusion
+  probabilistic models.
+\newblock \emph{arXiv preprint arXiv:2211.01095}, 2022{\natexlab{c}}.
+
+\bibitem[Meng et~al.(2022{\natexlab{a}})Meng, Gao, Kingma, Ermon, Ho, and
+  Salimans]{meng2022distillation}
+Meng, C., Gao, R., Kingma, D.~P., Ermon, S., Ho, J., and Salimans, T.
+\newblock On distillation of guided diffusion models.
+\newblock \emph{arXiv preprint arXiv:2210.03142}, 2022{\natexlab{a}}.
+
+\bibitem[Meng et~al.(2022{\natexlab{b}})Meng, Song, Song, Wu, Zhu, and
+  Ermon]{meng2021sdedit}
+Meng, C., Song, Y., Song, J., Wu, J., Zhu, J.-Y., and Ermon, S.
+\newblock {SDE}dit: Image synthesis and editing with stochastic differential
+  equations.
+\newblock In \emph{International Conference on Learning Representations},
+  2022{\natexlab{b}}.
+
+\bibitem[Nair et~al.(2020)Nair, Gupta, Dalal, and Levine]{awac}
+Nair, A., Gupta, A., Dalal, M., and Levine, S.
+\newblock Awac: Accelerating online reinforcement learning with offline
+  datasets.
+\newblock \emph{arXiv preprint arXiv:2006.09359}, 2020.
+
+\bibitem[Nichol et~al.(2021)Nichol, Dhariwal, Ramesh, Shyam, Mishkin, McGrew,
+  Sutskever, and Chen]{nichol2021glide}
+Nichol, A., Dhariwal, P., Ramesh, A., Shyam, P., Mishkin, P., McGrew, B.,
+  Sutskever, I., and Chen, M.
+\newblock Glide: Towards photorealistic image generation and editing with
+  text-guided diffusion models.
+\newblock \emph{arXiv preprint arXiv:2112.10741}, 2021.
+
+\bibitem[Nie et~al.(2021)Nie, Vahdat, and Anandkumar]{nie2021controllable}
+Nie, W., Vahdat, A., and Anandkumar, A.
+\newblock Controllable and compositional generation with latent-space
+  energy-based models.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  34:\penalty0 13497--13510, 2021.
+
+\bibitem[Oord et~al.(2018)Oord, Li, and Vinyals]{infoNCE}
+Oord, A. v.~d., Li, Y., and Vinyals, O.
+\newblock Representation learning with contrastive predictive coding.
+\newblock \emph{arXiv preprint arXiv:1807.03748}, 2018.
+
+\bibitem[Pandey et~al.(2022)Pandey, Mukherjee, Rai, and
+  Kumar]{pandey2022diffusevae}
+Pandey, K., Mukherjee, A., Rai, P., and Kumar, A.
+\newblock Diffuse{VAE}: Efficient, controllable and high-fidelity generation
+  from low-dimensional latents.
+\newblock \emph{arXiv preprint arXiv:2201.00308}, 2022.
+
+\bibitem[Pearce et~al.(2022)Pearce, Rashid, Kanervisto, Bignell, Sun,
+  Georgescu, Macua, Tan, Momennejad, Hofmann, et~al.]{csbc}
+Pearce, T., Rashid, T., Kanervisto, A., Bignell, D., Sun, M., Georgescu, R.,
+  Macua, S.~V., Tan, S.~Z., Momennejad, I., Hofmann, K., et~al.
+\newblock Imitating human behaviour with diffusion models.
+\newblock In \emph{Deep Reinforcement Learning Workshop NeurIPS 2022}, 2022.
+
+\bibitem[Peng et~al.(2019)Peng, Kumar, Zhang, and Levine]{awr}
+Peng, X.~B., Kumar, A., Zhang, G., and Levine, S.
+\newblock Advantage-weighted regression: Simple and scalable off-policy
+  reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:1910.00177}, 2019.
+
+\bibitem[Peters et~al.(2010)Peters, Mulling, and Altun]{rwr}
+Peters, J., Mulling, K., and Altun, Y.
+\newblock Relative entropy policy search.
+\newblock In \emph{Twenty-Fourth AAAI Conference on Artificial Intelligence},
+  2010.
+
+\bibitem[Poole et~al.(2022)Poole, Jain, Barron, and
+  Mildenhall]{poole2022dreamfusion}
+Poole, B., Jain, A., Barron, J.~T., and Mildenhall, B.
+\newblock Dreamfusion: Text-to-3d using 2d diffusion.
+\newblock \emph{arXiv preprint arXiv:2209.14988}, 2022.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal,
+  Sastry, Askell, Mishkin, Clark, et~al.]{radford2021learning}
+Radford, A., Kim, J.~W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry,
+  G., Askell, A., Mishkin, P., Clark, J., et~al.
+\newblock Learning transferable visual models from natural language
+  supervision.
+\newblock In \emph{International Conference on Machine Learning}, pp.\
+  8748--8763. PMLR, 2021.
+
+\bibitem[Ramesh et~al.(2022)Ramesh, Dhariwal, Nichol, Chu, and
+  Chen]{ramesh2022hierarchical}
+Ramesh, A., Dhariwal, P., Nichol, A., Chu, C., and Chen, M.
+\newblock Hierarchical text-conditional image generation with {CLIP} latents.
+\newblock \emph{arXiv preprint arXiv:2204.06125}, 2022.
+
+\bibitem[Rombach et~al.(2022)Rombach, Blattmann, Lorenz, Esser, and
+  Ommer]{rombach2022high}
+Rombach, R., Blattmann, A., Lorenz, D., Esser, P., and Ommer, B.
+\newblock High-resolution image synthesis with latent diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pp.\  10684--10695, 2022.
+
+\bibitem[Saharia et~al.(2022{\natexlab{a}})Saharia, Chan, Chang, Lee, Ho,
+  Salimans, Fleet, and Norouzi]{saharia2022palette}
+Saharia, C., Chan, W., Chang, H., Lee, C., Ho, J., Salimans, T., Fleet, D., and
+  Norouzi, M.
+\newblock Palette: Image-to-image diffusion models.
+\newblock In \emph{ACM SIGGRAPH 2022 Conference Proceedings}, pp.\  1--10,
+  2022{\natexlab{a}}.
+
+\bibitem[Saharia et~al.(2022{\natexlab{b}})Saharia, Chan, Saxena, Li, Whang,
+  Denton, Ghasemipour, Ayan, Mahdavi, Lopes, et~al.]{saharia2022photorealistic}
+Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E., Ghasemipour,
+  S. K.~S., Ayan, B.~K., Mahdavi, S.~S., Lopes, R.~G., et~al.
+\newblock Photorealistic text-to-image diffusion models with deep language
+  understanding.
+\newblock \emph{arXiv preprint arXiv:2205.11487}, 2022{\natexlab{b}}.
+
+\bibitem[Salimans \& Ho(2022)Salimans and Ho]{salimans2022progressive}
+Salimans, T. and Ho, J.
+\newblock Progressive distillation for fast sampling of diffusion models.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[Shapiro et~al.(2001)Shapiro, Stockman, et~al.]{cvbook}
+Shapiro, L.~G., Stockman, G.~C., et~al.
+\newblock \emph{Computer vision}, volume~3.
+\newblock Prentice Hall New Jersey, 2001.
+
+\bibitem[Sohl-Dickstein et~al.(2015)Sohl-Dickstein, Weiss, Maheswaranathan, and
+  Ganguli]{sohl2015deep}
+Sohl-Dickstein, J., Weiss, E., Maheswaranathan, N., and Ganguli, S.
+\newblock Deep unsupervised learning using nonequilibrium thermodynamics.
+\newblock In \emph{International Conference on Machine Learning}, pp.\
+  2256--2265. PMLR, 2015.
+
+\bibitem[Song et~al.(2021{\natexlab{a}})Song, Meng, and
+  Ermon]{song2020denoising}
+Song, J., Meng, C., and Ermon, S.
+\newblock Denoising diffusion implicit models.
+\newblock In \emph{International Conference on Learning Representations},
+  2021{\natexlab{a}}.
+
+\bibitem[Song et~al.(2021{\natexlab{b}})Song, Sohl{-}Dickstein, Kingma, Kumar,
+  Ermon, and Poole]{song2020score}
+Song, Y., Sohl{-}Dickstein, J., Kingma, D.~P., Kumar, A., Ermon, S., and Poole,
+  B.
+\newblock Score-based generative modeling through stochastic differential
+  equations.
+\newblock In \emph{International Conference on Learning Representations},
+  2021{\natexlab{b}}.
+
+\bibitem[Theis et~al.(2022)Theis, Salimans, Hoffman, and
+  Mentzer]{theis2022lossy}
+Theis, L., Salimans, T., Hoffman, M.~D., and Mentzer, F.
+\newblock Lossy compression with gaussian diffusion.
+\newblock \emph{arXiv preprint arXiv:2206.08889}, 2022.
+
+\bibitem[Wang et~al.(2022{\natexlab{a}})Wang, Zhang, Zhang, Gu, Bao,
+  Baltrusaitis, Shen, Chen, Wen, Chen, et~al.]{wang2022rodin}
+Wang, T., Zhang, B., Zhang, T., Gu, S., Bao, J., Baltrusaitis, T., Shen, J.,
+  Chen, D., Wen, F., Chen, Q., et~al.
+\newblock Rodin: A generative model for sculpting 3d digital avatars using
+  diffusion.
+\newblock \emph{arXiv preprint arXiv:2212.06135}, 2022{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2020)Wang, Novikov, Zolna, Merel, Springenberg, Reed,
+  Shahriari, Siegel, Gulcehre, Heess, and de~Freitas]{crr}
+Wang, Z., Novikov, A., Zolna, K., Merel, J.~S., Springenberg, J.~T., Reed,
+  S.~E., Shahriari, B., Siegel, N., Gulcehre, C., Heess, N., and de~Freitas, N.
+\newblock Critic regularized regression.
+\newblock In Larochelle, H., Ranzato, M., Hadsell, R., Balcan, M., and Lin, H.
+  (eds.), \emph{Advances in Neural Information Processing Systems}, volume~33,
+  pp.\  7768--7778. Curran Associates, Inc., 2020.
+
+\bibitem[Wang et~al.(2022{\natexlab{b}})Wang, Hunt, and Zhou]{dql}
+Wang, Z., Hunt, J.~J., and Zhou, M.
+\newblock Diffusion policies as an expressive policy class for offline
+  reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2208.06193}, 2022{\natexlab{b}}.
+
+\bibitem[Wu et~al.(2022)Wu, Gong, Liu, Ye, and Liu]{wu2022diffusion}
+Wu, L., Gong, C., Liu, X., Ye, M., and Liu, Q.
+\newblock Diffusion-based molecule generation with informative prior bridges.
+\newblock \emph{arXiv preprint arXiv:2209.00865}, 2022.
+
+\bibitem[Xiao et~al.(2020)Xiao, Yan, and Amit]{xiao2020exponential}
+Xiao, Z., Yan, Q., and Amit, Y.
+\newblock Exponential tilting of generative models: Improving sample quality by
+  training and sampling from latent energy.
+\newblock \emph{arXiv preprint arXiv:2006.08100}, 2020.
+
+\bibitem[Xu et~al.(2022)Xu, Yu, Song, Shi, Ermon, and Tang]{xu2022geodiff}
+Xu, M., Yu, L., Song, Y., Shi, C., Ermon, S., and Tang, J.
+\newblock Geodiff: A geometric diffusion model for molecular conformation
+  generation.
+\newblock \emph{arXiv preprint arXiv:2203.02923}, 2022.
+
+\bibitem[Yang et~al.(2022)Yang, Srivastava, and Mandt]{yang2022diffusion}
+Yang, R., Srivastava, P., and Mandt, S.
+\newblock Diffusion probabilistic modeling for video generation.
+\newblock \emph{arXiv preprint arXiv:2203.09481}, 2022.
+
+\bibitem[Zeng et~al.(2022)Zeng, Vahdat, Williams, Gojcic, Litany, Fidler, and
+  Kreis]{zeng2022lion}
+Zeng, X., Vahdat, A., Williams, F., Gojcic, Z., Litany, O., Fidler, S., and
+  Kreis, K.
+\newblock Lion: Latent point diffusion models for 3d shape generation.
+\newblock \emph{arXiv preprint arXiv:2210.06978}, 2022.
+
+\bibitem[Zhang \& Chen(2022)Zhang and Chen]{zhang2022fast}
+Zhang, Q. and Chen, Y.
+\newblock Fast sampling of diffusion models with exponential integrator.
+\newblock \emph{arXiv preprint arXiv:2204.13902}, 2022.
+
+\bibitem[Zhang et~al.(2022)Zhang, Tao, and Chen]{zhang2022gddim}
+Zhang, Q., Tao, M., and Chen, Y.
+\newblock gddim: Generalized denoising diffusion implicit models.
+\newblock \emph{arXiv preprint arXiv:2206.05564}, 2022.
+
+\bibitem[Zhao et~al.(2022)Zhao, Bao, Li, and Zhu]{zhao2022egsde}
+Zhao, M., Bao, F., Li, C., and Zhu, J.
+\newblock Egsde: Unpaired image-to-image translation via energy-guided
+  stochastic differential equations.
+\newblock \emph{arXiv preprint arXiv:2207.06635}, 2022.
+
+\bibitem[Zhong et~al.(2022)Zhong, Liu, Liu, Bao, Shen, and Li]{zhong2022deep}
+Zhong, Y., Liu, H., Liu, X., Bao, F., Shen, W., and Li, C.
+\newblock Deep generative modeling on limited data with regularization by
+  nontransferable pre-trained models.
+\newblock \emph{arXiv preprint arXiv:2208.14133}, 2022.
+
+\bibitem[Zhou et~al.(2022)Zhou, Wang, Yan, Lv, Zhu, and
+  Feng]{zhou2022magicvideo}
+Zhou, D., Wang, W., Yan, H., Lv, W., Zhu, Y., and Feng, J.
+\newblock Magicvideo: Efficient video generation with latent diffusion models.
+\newblock \emph{arXiv preprint arXiv:2211.11018}, 2022.
+
+\bibitem[Zhu et~al.(2014)Zhu, Chen, and Xing]{zhu2014bayesian}
+Zhu, J., Chen, N., and Xing, E.~P.
+\newblock Bayesian inference with posterior regularization and applications to
+  infinite latent svms.
+\newblock \emph{The Journal of Machine Learning Research}, 15\penalty0
+  (1):\penalty0 1799--1847, 2014.
+
+\bibitem[Ziegler et~al.(2019)Ziegler, Stiennon, Wu, Brown, Radford, Amodei,
+  Christiano, and Irving]{ziegler2019fine}
+Ziegler, D.~M., Stiennon, N., Wu, J., Brown, T.~B., Radford, A., Amodei, D.,
+  Christiano, P., and Irving, G.
+\newblock Fine-tuning language models from human preferences.
+\newblock \emph{arXiv preprint arXiv:1909.08593}, 2019.
+
+\end{thebibliography}

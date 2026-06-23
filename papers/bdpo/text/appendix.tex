@@ -1,0 +1,639 @@
+\section{Introduction about the Benchmarks}\label{appsec:intro_benchmark}
+\textbf{Synthetic 2D Datasets. }We leverage the synthetic 2D datasets from \citet{qgpo} as a sanity check and a convenient illustration of the mechanism of \algbb. This task set encompasses 6 different datasets. For each dataset, the data points $x_i$ are associated with different energies $\mathcal{E}(x_i)$. By sampling from the Boltzmann distribution associated with the temperature $\eta$:
+$$
+p(x_i)\propto \exp(\mathcal{E}(x_i)/\eta), x_i\in \mathcal{D},
+$$
+we can obtain ground-truth sample results at a specific regularization strength $\eta$ (see Figure~\ref{appfig:2d_sample}). 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{images/appfig_toy2d_data.pdf}
+    \caption{Illustration of synthetic 2D datasets and sampling results with various temperature $\eta$.}
+    \label{appfig:2d_sample}
+\end{figure}
+
+We also use Gym MuJoCo~\citep{gym}, which provides a series of continuous control tasks to assess the performance of \algbb as well as the baseline methods.
+
+\textbf{Locomotion Tasks. }We choose 3 tasks from Gym MuJoCo: 1) \textit{halfcheetah}, which is a robot with 9 body segments and 8 joints (including claws) as shown in Figure~\ref{subfig:benchmarks_a}. The goal is to apply torque to 6 of the joints to make the robot move forward as quickly as possible. The reward is based on forward movement distance. 2) \textit{hopper}, which is a simpler robot with a torso, a thigh, a shin, and a foot as shown in Figure~\ref{subfig:benchmarks_b}. The goal is to use torque on 3 joints to make the robot hop forward. 3) \textit{walker2d}, a robot with a torso and two legs, each consisting of a thigh, a shin, and a foot as shown in Figure~\ref{subfig:benchmarks_c}. The goal is to apply torque to 6 joints to make the robot walk forward, rather than hop.
+
+For the offline dataset, we choose the \textit{-v2} datasets with three levels of qualities provided by D4RL~\citep{d4rl}: 1) \textit{medium}, which is collected by a policy that achieves approximately 30\% of expert-level performance; 2) \textit{medium-replay}, which includes all data from the replay buffer of the training process of the medium-level policy; and 3) \textit{medium-expert}: a mixture of medium-level data and expert-level data in a 1:1 ratio.
+
+\textbf{Navigation Tasks. }We use \textit{antmaze} as the representative of navigation tasks. In this task set, the agent needs to control an eight degree-of-freedom \textit{ant} robot to walk through a maze, as shown in Figure~\ref{subfig:benchmarks_d}. We use three different maps: \textit{umaze}, \textit{medium}, and \textit{large}; and employed three different types of datasets: 1) the ant reaches a fixed target from a fixed starting position; 2) In the \textit{diverse} dataset, the ant needs to go from a random position to a random target; 3) In the \textit{play} dataset, the ant goes from manually selected positions to manually selected targets (not necessarily the same as during evaluation). We use the \textit{-v0} versions of the datasets, also provided by D4RL~\citep{d4rl}. 
+
+\textbf{Metrics. }We measure the performance using the normalized score, which can be calculated by
+$$
+\text{Normalized\_Score}(\pi)=\frac{\text{Score}(\pi) - \text{Score}_{\text{random}}}{\text{Score}_\text{expert}-\text{Score}_{\text{random}}},
+$$
+where $\text{Score}(\pi)$ is the average cumulated rewards achieve by the policy $\pi$,  $\text{Score}_{\text{random}}$and $\text{Score}_{\text{expert}}$ are reference scores for random policies and expert policies, provided by D4RL. 
+
+
+\section{Hyper-parameter Configurations}\label{appsec:hyperparameters}
+
+\subsection{D4RL Datasets}
+We largely follow the configurations from DAC~\citep{dac}. Parameters that are common across all datasets are listed in Table~\ref{apptab:common_param}. The hyperparameters of value networks in the table are the same for both the Q-value networks $Q_{\psi}$ and diffusion value networks $V_{\phi}. $
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{images/halfcheetah.pdf}
+        \caption{halfcheetah}
+        \label{subfig:benchmarks_a}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{images/hopper.pdf}
+        \caption{hopper}
+        \label{subfig:benchmarks_b}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{images/walker2d.pdf}
+        \caption{walker2d}
+        \label{subfig:benchmarks_c}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{images/umaze.pdf}
+        \caption{antmaze}
+        \label{subfig:benchmarks_d}
+    \end{subfigure}
+    \caption{Illustration of the Locomotion and Navigation Tasks.}
+    \label{fig:benchmarks}
+\end{figure}
+\begin{table}[htbp]
+    \centering
+    \caption{Common hyperparameters across all datasets.}
+    \label{apptab:common_param}
+    \begin{tabular}{c|c}
+        \toprule
+        Diffusion Backbone & \makecell[c]{\texttt{MLP}(256, 256, 256, 256) for locomotion tasks\\\texttt{MLP}(512, 512, 512, 512) for antmaze tasks}\\
+        Diffusion Noise Schedule & Variance Preserving~\citep{diffusion_sde}\\
+        Diffusion Solver & DDPM \\
+        Diffusion Steps & 5\\
+        Behavior Learning Rate & 0.0003 for locomotion tasks and 0.0001 for antmaze tasks\\
+        Actor Learning Rate & 1e-5\\
+        Actor Learning Rate Schedule & Cosine Annealing\\
+        Actor Gradient Clip & 1.0\\
+        Actor EMA Rate & 5e-3 \\
+        Actor Sampling & \makecell[c]{For \textit{antmaze-umaze-diverse-v0}, generate 1 sample and execute\\For others, generate 10 samples and select the action with the highest Q} \\
+        Actor Update Frequency & 5\\
+        Value Learning Rate & 0.0003 \\
+        Value Ensemble & 10  (20 for the \textit{hopper-medium-v2} task exclusively) \\
+        Value Backbone & \texttt{MLP}(256, 256, 256)\\
+        Value EMA Rate & 0.005 \\
+        Discount & 0.99 for locomotion tasks and 0.995 for antmaze tasks\\
+        Batch Size & 256 \\
+        Optimizer & ADAM~\citep{adam} \\
+        Pretrain Steps & 2e6\\
+        Train Steps & 2e6\\
+        Value Warmup Steps & 5e4\\
+        Sample Clip Range & [-1, 1]\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Hyper-parameters that vary in different tasks.}
+    \label{apptab:different_param}
+    \begin{tabular}{c||c|c|c}
+        \toprule
+        Dataset & $\rho$ & $\eta$ & Max-Q Backup~\citep{dql}\\
+        \midrule
+        halfcheetah-medium-v2 & \multirow{3}{*}{0.5} & \multirow{3}{*}{0.05} & \multirow{3}{*}{False}\\
+        halfcheetah-medium-replay-v2 &&&\\
+        halfcheetah-medium-expert-v2 &&&\\
+        \midrule
+        hopper-medium-v2 & \multirow{3}{*}{2.0} & \multirow{3}{*}{0.2} &\multirow{3}{*}{False}\\
+        hopper-medium-replay-v2 &&&\\
+        hopper-medium-expert-v2 &&&\\
+        \midrule
+        walker2d-medium-v2 & \multirow{3}{*}{1.0} & \multirow{3}{*}{0.15} &\multirow{3}{*}{False}\\
+        walker2d-medium-replay-v2 &&&\\
+        walker2d-medium-expert-v2 &&&\\
+        \midrule
+        antmaze-umaze-v2 & \multirow{2}{*}{0.8} & \multirow{2}{*}{0.5} & \multirow{2}{*}{True} \\
+        antmaze-umaze-diverse-v0 &&  & \\
+        \midrule
+        antmaze-medium-play-v0 & \multirow{2}{*}{0.8}& \multirow{2}{*}{0.2} & \multirow{2}{*}{True}\\
+        antmaze-medium-diverse-v0 & &  & \\
+        \midrule
+        antmaze-large-play-v0 & \multirow{2}{*}{0.8}& \multirow{2}{*}{1.0} & \multirow{2}{*}{True} \\
+        antmaze-large-diverse-v0 & &  &  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+We list the hyper-parameters that vary across different datasets in Table~\ref{apptab:different_param}. We specifically tune the regularization strength $\eta$ and the LCB coefficient for locomotion tasks, plus the value backup mode for antmaze tasks. 
+
+For evaluation, at each timestep $s_t$, we use the diffusion policy to diffuse $N=10$ actions, and select the action with the highest Q-value as the final action $a_t$ to execute in the environment. We report the score normalized by the performances of random policies and expert policies, provided by D4RL~\citep{d4rl}. 
+
+\subsection{Synthetic 2D Datasets}
+
+In the experiments with Synthetic 2D Datasets, we basically followed the parameters in D4RL in Table~\ref{apptab:common_param}, except that $\rho$ is set to 0, $\eta$ is set to 0.06, batch size is set to 512, and the number of diffusion steps is set to 50. We also turn off sample clipping for BDPO since the actions in these tasks are within $[-4.5, 4.5]$.
+
+\subsection{Details about the Ablation on Policy Parameterization}\label{appsec:abla_arch_detail}
+In this section, we provide more details about how we implement the variants that use deterministic policies or Gaussian policies. The only difference between these variants and \algbb lines in the actor parameterization, which means that we keep the implementation of the value networks (e.g., ensemble tricks and LCB value target) and the hyperparameters (e.g., the LCB coefficient $\rho$) identical to \algbb. We inherit the general behavior-regularized RL framework defined in \eqref{eq:brl_obj}, where we update the soft Q-value functions using the target
+\begin{equation}
+    \begin{aligned}
+        \mathcal{B}^\pi Q^\pi(s, a)=R(s, a)+\gamma \mathbb{E}\left[Q^\pi(s', a')\right]-\eta D(\pi, \nu),
+    \end{aligned}
+\end{equation}
+and improve the policy $\pi$ via
+\begin{equation}
+    \max_\pi\ \gamma \mathbb{E}_{a\sim\pi}\left[Q^\pi(s, a)\right]-\eta D(\pi, \nu),
+\end{equation}
+where $D$ denotes certain types of regularization specific to the actor parameterization.
+
+For deterministic policies, we follow \citet{rebrac} and use the mean squared error between actions from the policy and the behavior policy:
+\begin{equation}
+    D(\pi,\nu) = \frac 12\|\pi(s)-\nu(s)\|^2. 
+\end{equation}
+For Gaussian policies, we parameterize it as Diagonal Gaussian distribution $\pi(\cdot|s)=\mathcal{N}(\mu_{\pi}(s), \sigma_{\pi}^2(s))$, and the regularization is implemented as the KL divergence:
+\begin{equation}
+    \begin{aligned}
+        D(\pi(s),\nu(s))=\KL{\pi(s)}{\nu(s)}=\log \frac{\sigma_\nu(s)}{\sigma_{\pi}(s)} + \frac{\sigma_\pi^2(s)+(\mu_\pi(s)-\mu_\nu(s))^2}{2\sigma_\nu^2(s)}-\frac 12. 
+    \end{aligned}
+\end{equation}
+We find that using the analytical KL computation for Gaussian policies works better than using sample-based estimations.
+
+To ensure fair comparisons, we search for the optimal $\eta$ for both deterministic policies and Gaussian policies within a certain range. Specifically, we choose the $\eta$ from $\{0.1, 0.25, 0.5, 0.75, 1, 2, 3, 5, 10\}$. We observed that a higher eta would lead to a decline in performance, but an excessively small eta would cause the performance to oscillate drastically or even collapse in some cases. Therefore, we select values that ensure stable performance and deliver the highest level of performance as shown in Table~\ref{apptab:arch_abla_param}. 
+\begin{table}[htbp]
+    \centering
+    \caption{Values of $\eta$ used in the ablation study with the policy parameterization.}
+    \label{apptab:arch_abla_param}
+    \begin{tabular}{c|c|c}
+        \toprule
+        Dataset & Deterministic Policy & Gaussian Policy\\
+        \midrule
+        halfcheetah tasks & 0.25 & 0.75\\
+        \midrule
+        hopper tasks & 1.0 & 0.1 \\
+        \midrule
+        walker2d tasks & 1.5 & 0.25\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Proof for the Main Results}\label{appsec:proof}
+
+\begin{theorem}
+\label{thm:optim_is_reverse_process}
+    Suppose that the behavior policy is a diffusion model that approximates the forward process $q$ by minimizing the objective
+    \begin{equation}
+    \label{eq:diffusion_elbo}
+        \mathbb{E}_{a^0\sim \nu(s), a^n\sim q_{n|0}(\cdot|a^0)}\left[\KL{q_{n-1|0,n}(\cdot|a^0,a^n)}{p^{\nu,s}_{n-1|n}(\cdot|a^n)}\right] \quad \forall n\in\{1, 2, \ldots, N\}, s\in\mathcal{S}.
+    \end{equation}
+    Then, for any given Q-value function $Q(s, a)$, the optimal solution $p^{*,s}$ of \eqref{problem:path_diff} is the reverse process corresponding to the forward process $q^{\pi_Q,s}_{0:N}=\pi_Q(a^0|s)\prod_{n=1}^Nq_{n|n-1}(a^n|a^{n-1})$, where $\pi_Q(a|s)\propto\nu(a|s)\exp(Q(s,a)/\eta)$.
+\end{theorem}
+\begin{proof}
+Let's first consider the behavior diffusion policy $p^\nu$, which minimizes the following problem for every $n$ and state $s$:
+$$
+\begin{aligned}
+        &\min_{p^{\nu,s}_{n-1|n}}\quad \mathbb{E}_{a^0\sim\nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)\KL{q_{n-1|0,n}(\cdot|a^0, a^n)}{p_{n-1|n}^{\nu,s}(\cdot|a^n)}\right]\\
+        &\ \ \textrm{s.t.}\quad \int p_{n-1|n}^{\nu,s}(a^{n-1}|a^n)\rmd a^{n-1}=1.
+    \end{aligned}
+$$
+The corresponding Lagrange function is
+\begin{equation}
+\begin{aligned}
+    L(p^{\nu,s}_{n-1|n}, \lambda)&=\mathbb{E}_{a^0\sim\nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)\KL{q_{n-1|0,n}(\cdot|a^0, a^n)}{p_{n-1|n}^{\nu,s}(\cdot|a^n)}\right]+\lambda (1-\int p_{n-1|n}^{\nu,s}(a^{n-1}|a^n)\mathrm{d} a^{n-1}),\\
+\end{aligned}
+\end{equation}
+where $\lambda$ is the multiplier. Setting $\frac{\partial L}{\partial p_{n|n-1}^{\nu, s}}=0$, we obtain
+\begin{equation}\label{appeq:dual_optimal}
+\begin{aligned}
+    p^{\nu,s}_{n-1|n}(a^{n-1}|a^n)&=-\frac 1 \lambda \mathbb{E}_{a^0\sim \nu^0(\cdot|s)}\left[q_{n|0}(a^n|a^0)q_{n-1|0,n}(a^{n-1}|a^0, a^n)\right].
+\end{aligned}
+\end{equation}
+Since $\int p_{n-1|n}^{\nu,s}(a^{n-1}|a^n)\rmd a^{n-1}=1$, it follows that
+\begin{equation}\label{appeq:lambda}
+\begin{aligned}
+    \lambda &= -\int \mathbb{E}_{a^0\sim \nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)q_{n-1|0,n}(a^{n-1}|a^0, a^n)\right]\rmd a^{n-1}\\
+    &=-\mathbb{E}_{a^0\sim \nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)\right].
+\end{aligned}
+\end{equation}
+Substituting \eqref{appeq:lambda} into \eqref{appeq:dual_optimal},
+\begin{equation}
+    \begin{aligned}
+        p^{\nu,s}_{n-1|n}(a^{n-1}|a^n)&=\frac{\mathbb{E}_{a^0\sim \nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)q_{n-1|0,n}(a^{n-1}|a^0, a^n)\right]}{\mathbb{E}_{a^0\sim \nu^0(\cdot|s)}\left[q_{n|0}(a^n|a^0)\right]}\\
+        &=\frac{\mathbb{E}_{a^0\sim \nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)q_{n-1|0,n}(a^{n-1}|a^0, a^n)\right]}{q_n(a^n)}\\
+        &=\int \frac{v(a^0)q_{n|0}(a^n|a^0)q_{n-1|0, n}(a^{n-1}|a^0, a^n)}{q_n(a^n)}\mathrm{d} a^0\\
+        &=q_{n-1|n}^{\nu, s}(a^{n-1}|a^n),
+    \end{aligned}
+\end{equation}
+That is, through optimizing \eqref{eq:diffusion_elbo}, the derived behavior diffusion policy is consistent with $q_{n-1|n}^{\nu, s}$ from the forward process. 
+
+Next, we prove that the optimizer of \eqref{problem:path_diff} also satisfies $p^{*, s}_{n-1|n}=q^{\pi_Q, s}_{n-1|n}$. 
+
+To do this, we first recognize that the reverse (generative) process of the diffusion policy constitutes a Markov Decision Process (MDP), where the \textit{state} at time step $n$ is the tuple $(s, a^n)$ and the agent's policy follows $a^{n-1}\sim p^{\pi, s}_{n-1|n}(\cdot|a^n)$. The \textit{transition} in this MDP is implicit and deterministic: upon selecting the action $a^{n-1}$, the state immediately transitions from $(s, a^n)$ to $(s, a^{n-1})$. At the last time step $n=0$, the agent will receive an ending reward of $Q(s, a^0)$. In this sense, the problem defined in \eqref{problem:path_diff} can be recognized as a behavior-regularized RL problem with Gaussian parameterized policy $p^{\pi,s}_{n-1|n}$ and behavior policy $p^{\nu,s}_{n-1|n}$. Following \citet{brac}, the optimal diffusion value functions satisfy the recursion:
+\begin{equation}\label{appeq:diffusion_value_recursion}
+        \begin{aligned}
+        V_0^{*, s}(a^0)&=Q(s, a^0),\\
+        V_n^{*, s}(a^n)&=\eta\log\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n}}\left[\exp(V^{*, s}_{n-1}(a^{n-1})/\eta)\right],
+    \end{aligned}
+\end{equation}
+and the optimal diffusion policy is given by:
+\begin{equation}\label{appeq:optimal_diffusion_policy}
+    p^{*, s}_{n-1|n}(a^{n-1}|a^n)=\frac{p^{\nu,s}_{n-1|n}(a^{n-1}|a^n)\exp(V^{*, s}_{n-1}(a^{n-1})/\eta)}{\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n}}\left[\exp(V^{*, s}_{n-1}(a^{n-1})/\eta)\right]}.
+\end{equation}
+Expanding the recursion of diffusion value functions, we have
+\begin{equation}
+    \begin{aligned}
+    V^{*, s}_n(a^n)&=\eta\log\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n}}\left[\exp(V^{*, s}_{n-1}(a^{n-1})/\eta)\right]\\
+    &=\eta\log\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n},a^{n-2}\sim p^{\nu,s}_{n-2|n-1}}\left[\exp(V^{*, s}_{n-2}(a^{n-2})/\eta)\right]\\
+    &=\ldots\\
+    &=\eta\log\mathbb{E}_{a^{0}\sim p^{\nu,s}_{0|n}}\left[\exp(V^{*, s}_{0}(a^{0})/\eta)\right]\\
+    &=\eta\log\mathbb{E}_{a^{0}\sim p^{\nu,s}_{0|n}}\left[\exp(Q(s, a^{0})/\eta)\right].\\
+    \end{aligned}
+\end{equation}
+Similarly, the optimal policy can be expressed as: 
+\begin{equation}\label{appeq:expanded_optimal_diffusion_policy}
+    \begin{aligned}
+        p^{*, s}_{n-1|n}(a^{n-1}|a^n)&=\frac{p^{\nu,s}_{n-1|n}(a^{n-1}|a^n)\mathbb{E}_{a^0\sim p^{\nu,s}_{0|n-1}}\left[\exp(Q(s, a^0)/\eta)\right]}{\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n}}\left[\mathbb{E}_{a^0\sim p^{\nu,s}_{0|n-1}}\left[\exp(Q(s, a^0)/\eta)\right]\right]}.\\
+    \end{aligned}
+\end{equation}
+Let's consider the following expression:
+\begin{equation}\label{appeq:expression}
+    \begin{aligned}
+    \mathbb{E}_{a^0\sim p^{\nu,s}_{0|n}}\left[\exp(Q(s, a^0)/\eta)\right]&=\int p^{\nu,s}_{0|n}(a^0|a^n)\exp(Q(s, a^0)/\eta)\mathrm{d} a^0\\
+    &=\int q^{\nu,s}_{0|n}(a^0|a^n)\exp(Q(s, a^0)/\eta)\mathrm{d} a^0\\
+    &=\int \frac{q^{\nu,s}_{n|0}(a^n|a^0)\nu(a^0|s)}{q^{\nu,s}_n(a^n)}\exp(Q(s, a^0)/\eta)\mathrm{d} a^0\\
+    &=\frac 1{Z(s)}\int \frac{q^{\nu,s}_{n|0}(a^n|a^0)\pi_Q(a^0|s)}{q^{\nu,s}_n(a^n)}\mathrm{d} a^0\\
+    &=\frac{1}{Z(s)q^{\nu,s}_n(a^n)}\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n|0}(a^n|a^0)\right],\\
+    \end{aligned}
+\end{equation}
+where $Z(s)$ is the normalizing factor, and the second equation follows from $p^{\nu,s}_{n-1|n}=q^{\nu,s}_{n-1|n}$. Substituting $\mathbb{E}_{a^0\sim p^{\nu,s}_{0|n}}\left[\exp(Q(s, a^0)/\eta)\right]$ and $\mathbb{E}_{a^0\sim p^{\nu,s}_{0|n-1}}\left[\exp(Q(s, a^0)/\eta)\right]$ with \eqref{appeq:expression} into \eqref{appeq:expanded_optimal_diffusion_policy}, 
+\begin{equation}
+    \begin{aligned}
+        p^{*, s}_{n-1|n}(a^{n-1}|a^n)&=\frac{p^{\nu,s}_{n-1|n}(a^{n-1}|a^n)q^{\nu,s}_n(a^n)\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n-1|0}(a^{n-1}|a^0)\right]}{q^{\nu,s}_{n-1}(a^{n-1})\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n|0}(a^n|a^0)\right]}\\
+        &=\frac{q^{\nu,s}_{n-1|n}(a^{n-1}|a^n)q^{\nu,s}_n(a^n)\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n-1|0}(a^{n-1}|a^0)\right]}{q^{\nu,s}_{n-1}(a^{n-1})\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n|0}(a^n|a^0)\right]}\\
+        &=\frac{q^{\nu,s}_{n|n-1}(a^n|a^{n-1})\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n-1|0}(a^{n-1}|a^0)\right]}{\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\nu,s}_{n|0}(a^n|a^0)\right]}\\
+        &=\frac{q^{\pi_Q,s}_{n|n-1}(a^n|a^{n-1})\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\pi_Q,s}_{n-1|0}(a^{n-1}|a^0)\right]}{\mathbb{E}_{a^0\sim\pi_Q}\left[q^{\pi_Q,s}_{n|0}(a^n|a^0)\right]}\\
+        &=q^{\pi_Q, s}_{n-1|n}(a^{n-1}|a^n),
+    \end{aligned}
+\end{equation}
+where the second line follows from $p^{\nu,s}_{n-1|n}=q^{\nu,s}_{n-1|n}$ and the fourth line follows from the fact that $q^{\nu,s}_{i|j}=q^{\pi_Q,s}_{i|j}$ for any $i>j$. 
+
+In conclusion, we obtain $p^{*, s}_{n-1|n}(a^{n-1}|a^n)=q^{\pi_Q, s}_{n-1|n}(a^{n-1}|a^n)$, meaning that the reverse process $p^{*,s}$ exactly corresponds to the forward process starting from $\pi_Q(a|s)\propto \nu(a|s)\exp(Q(s, a)/\eta)$. 
+
+
+% First, we note that the Markov process $p_{0:N}^{\nu,s}$ is the reverse process corresponding to forward diffusion process $q^{\nu,s}(u_{0:N})=\nu(a^0|s)\prod_{n=1}^Nq(a^n|a^{n-1})$, i.e.,
+% \begin{equation}
+% \label{eq:nu_forward_eq_reverse}
+%     p^{\nu,s}_{n-1|n}=q^{\nu,s}_{n-1|n}
+% \end{equation}
+% where 
+% \begin{equation}
+% \label{def:qn-1n}
+%     q^{\nu,s}_{n-1|n}(a^{n-1}|a^n)\coloneqq\frac{\mathbb{E}_{a^0\sim\nu(\cdot|s)}[q_{n-1|0}(a^{n-1}|a^0)q_{n|n-1}(a^n|a^{n-1})]}{\mathbb{E}_{a^0\sim\nu(s)}[q_{n|0}(a^n|a^0)]}.
+% \end{equation}
+% This follows from the fact that $p_{n-1|n}^{\nu,s}$ minimizes the objective in \eqref{eq:diffusion_elbo}). Solving the constrained optimization problem
+% $$
+% \begin{aligned}
+%     &\min_{p_{n-1|n}^{\nu,s}(\cdot|a^n)}\mathbb{E}_{a^0\sim \nu(\cdot|s)}\left[q_{n|0}(a^n|a^0)\KL{q_{n-1|0,n}(\cdot|a^0,a^n)}{p^{\nu,s}_{n-1|n}(\cdot|a^n)}\right]\\
+%     &\textrm{s.t. }\int p_{n-1|n}^{\nu,s}(a^{n-1}|a^n)\mathrm{d}a^{n-1}=1
+% \end{aligned}
+% $$
+% for each $a^n$ yields
+% $$
+%     p^{\nu,s}_{n-1|n}(a^{n-1}|a^n)=\frac{\mathbb{E}_{a^0\sim\nu(\cdot|s)}[q_{n|0}(a^n|a^0)q_{n-1|0,n}(a^{n-1}|a^0,a^n)]}{\mathbb{E}_{a^0\sim\nu(\cdot|s)}[q_{n|0}(a^n|a^0)]}.
+% $$
+% \eqref{eq:nu_forward_eq_reverse}) then follows trivially.
+
+% % \eqref{eq:nu_forward_eq_reverse}) ensures that the reverse process $p_{0:N}^{\nu,s}$ and the forward process $q^{\nu,s}(u_{0:N})\coloneqq\nu(a^0|s)\prod_{n=1}^Nq(a^n|a^{n-1})$ match in distribution. We are free to replace the reverse process in the KL divergence $\KL{p_{0:N}^{\pi,s}}{p_{0:N}^{\nu,s}}$ with the forward process.
+
+% Then, we will show that the equality
+% $p^{*,s}_{n-1|n}=q^{s,\pi^*}_{n-1|n}$ holds for $$\pi^*(a|s)=\frac{\nu(a|s)\exp(Q(s,a)/\eta)}{\mathbb{E}_{a\sim \nu(\cdot|s)}[\exp(Q(s,a)/\eta)]}.$$ 
+
+% Note that \eqref{problem:path_diff} on every state $s$ constitutes a 
+% standard maximum entropy reinforcement learning problem \citep{sac,brac,xql} with ending reward $Q(s, a^0)$ and no intermediate rewards. In such cases, the optimal diffusion value function satisfies the following recursion,
+% $$V^{*,s}_0(a^0)=Q(s,a^0)$$
+% $$
+%     V_{n}^{*,s}(a^n)=\eta\log\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n}(\cdot|a^n)}\left[\exp(V_{n-1}^{*,s}(a^{n-1})/\eta)\right].
+% $$
+% Expanding the recursion, we have
+% \begin{equation}
+% \label{eq:V_n}
+%     V_n^{*,s}(a^n)=\eta\log\mathbb{E}_{a^0\sim p^{\nu,s}_{0|n}(\cdot|a^n)}\left[\exp(Q(s,a^0)/\eta)\right].
+% \end{equation}
+% The optimal policy of the maximum entropy reinforcement learning problem is a Boltzmann distribution defined as follows,
+% $$
+%     p^{*,s}_{n-1|n}(a^{n-1}|a^n)=\frac{p_{n-1|n}^{\nu,s}(a^{n-1}|a^n)\exp(V_{n-1}^{*,s}(a^{n-1})/\eta)}{\mathbb{E}_{a^{n-1}\sim p^{\nu,s}_{n-1|n}(\cdot|a^n)}\left[\exp(V_{n-1}^{*,s}(a^{n-1})/\eta)\right]}.
+% $$
+% Substituting $p_{n-1|n}^{\nu,s}$ and $V_{n-1}^{*,s}$ with Equations~(\ref{eq:nu_forward_eq_reverse}) and (\ref{eq:V_n}), we get
+% \begin{equation}\label{appeq:cep}
+%     p^{*,s}_{n-1|n}(a^{n-1}|a^n)=\frac{q^{\nu, s}_{n-1|n}(a^{n-1}|a^n)\mathbb{E}_{a^{0}\sim q^{\nu, s}_{0|n-1}(\cdot|a^{n-1})}\left[\exp(Q(s, a^0)/\eta)\right]}{\mathbb{E}_{a^0\sim q_{0|n}^{\nu, s}(\cdot|a^n)}\left[\exp(Q(s, a^0))/\eta\right]},
+% \end{equation}
+% where
+% $$
+% \mathbb{E}_{a^0\sim q_{0|n}^{\nu, s}(\cdot|a^n)}\left[\exp(Q(s, a^0))/\eta\right]=\int q^{\nu, s}_{n-1|n}(a^{n-1}|a^n)\mathbb{E}_{a^{0}\sim q^{\nu, s}_{0|n-1}(\cdot|a^{n-1})}\left[\exp(Q(s, a^0)/\eta)\right]\mathrm{d}a^{n-1}.
+% $$
+% Unfolding the definition of $q^{\nu, s}_{n-1|n}(a^{n-1}|a^n)$ (\eqref{def:qn-1n}), we have
+% $$
+% \begin{aligned}
+%         p^{*,s}_{n-1|n}(a^{n-1}|a^n)&=\frac{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}[q^{\pi^*,s}_{n-1|0}(a^{n-1}|a^0)q^{\pi^*,s}_{n|n-1}(a^n|a^{n-1})]}{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}[q^{\pi^*,s}_{n|0}(a^n|a^0)]}.\\
+%     \end{aligned}
+% $$
+% % Since we have
+% % \begin{equation}\label{appeq:idem}
+% %     \begin{aligned}
+% %         &\mathbb{E}_{a^0\sim q_{0|n}^{\nu, s}(\cdot|a^n)}\left[\exp (Q(s, a^0)/\eta)\right]\\
+% %         &=\int q^{\nu,s}_{0|n}(a^0|a^n)\exp(Q(s, a^0)/\eta)\mathrm{d}a^0\\
+% %         &=\int \frac{q^{\nu,s}_{0}(a^0)q^{\nu,s}_{n|0}(a^n|a^0)}{q^{\nu,s}_n(a^n)}\exp(Q(s, a^0)/\eta)\mathrm{d}a^0\\
+% %         &=\int q_0^{\nu, s}(a^0)\frac{\exp(Q(s,a^0)/\eta)}{Z(s)}\frac{q^{\nu,s}_{n|0}(a^n|a^0)}{q^{\nu,s}_{n}(a^n)}Z(s)\mathrm{da^0}\\
+% %         &=\mathbb{E}_{a^0\sim \pi^*(\cdot|s)}\left[\frac{q^{\nu,s}_{n|0}(a^n|a^0)}{q^{\nu,s}_{n}(a^n)}Z(s)\right],
+% %     \end{aligned}
+% % \end{equation}
+% % where $q^{\nu,s}_0(\cdot)=\nu(\cdot|s)$ and $ Z(s)=\mathbb{E}_{\nu}[\exp(Q(s, a^0)/\eta)]$ is the normalizing factor. 
+
+% % Substituting \eqref{appeq:idem} into \eqref{appeq:cep} for $n$ and $n-1$, we have
+% % \begin{equation}
+% %     \begin{aligned}
+% %         p^{*,s}_{n-1|n}(a^{n-1}|a^n)&=\frac{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}\left[q^{\nu, s}_{n-1|n}(a^{n-1}|a^n)\frac{q^{\nu,s}_{n-1|0}(a^{n-1}|a^0)}{q^{\nu,s}_{n-1}(a^{n-1})}Z(s)\right]}{\mathbb{E}_{a^0\sim\pi^*}\left[\frac{q^{\nu,s}_{n|0}(a^n|a^0)}{q^{\nu,s}_{n}(a^n)}Z(s)\right]}\\
+% %         &=\frac{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}[q^{\nu,s}_{n-1|0}(a^{n-1}|a^0)q^{\nu,s}_{n|n-1}(a^n|a^{n-1})]}{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}[q^{\nu,s}_{n|0}(a^n|a^0)]}\\
+% %         &=\frac{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}[q^{\pi^*,s}_{n-1|0}(a^{n-1}|a^0)q^{\pi^*,s}_{n|n-1}(a^n|a^{n-1})]}{\mathbb{E}_{a^0\sim\pi^*(\cdot|s)}[q^{\pi^*,s}_{n|0}(a^n|a^0)]},\\
+% %     \end{aligned}
+% % \end{equation}
+% % where the last equation follows from the fact the forward process is the same for $\nu$ and $\pi^*$ except for step $n=0$. 
+
+% Thus, we conclude that the optimal diffusion policy $p^{*,s}_{0:N}$ matches in distribution with the forward diffusion process $q^{s,\pi^*}_{0:N}$ originating from the initial distribution $\pi^*(s)$. In other word, $\pi^*(a|s)=\int p^{*,s}(u_{0:N})\delta(a^0-a)\mathrm{d}u_{0:N}$. Since $\pi^*$ is the optimal solution of the KL regularized objective in \eqref{eq:expected_pi}), the proof is completed.
+
+\end{proof}
+
+\begin{theorem}[Theorem 4.2 in the main text]\label{thm:pathwise_kl_equivalence}
+    Let $p^\nu$ be the behavior diffusion process. The optimal diffusion policy $p^{*}$ of the pathwise KL-regularized RL problem in \eqref{eq:pathwise_kl_obj} is also the optimal policy $\pi^*$ of the KL regularized objective in \eqref{eq:brl_obj}, in the sense that $\pi^*(a|s)=\int p^{*, s}_{0:N}(a^{0:N})\delta(a-a^0)\mathrm{d}a^{0:N} \ \forall s\in\mathcal{S}$, where $\delta$ is the Dirac delta function. 
+\end{theorem}
+\begin{proof}
+    Denote the optimal Q-value function of the pathwise KL-regularized RL as $Q^*$. According to Theorem~\ref{thm:optim_is_reverse_process}, for any state $s\in\mathcal{S}$, $p^{*,s}$ is the reverse process of the forward diffusion process $q^{\pi_{Q^*},s}$. Since the $p^{\nu,s}$ is also the reverse process of $q^{\nu,s}$, we have
+    \begin{equation}
+        \KL{p^{*,s}_{0:N}}{p^{\nu,s}_{0:N}}=\KL{q^{\pi_{Q^*},s}_{0:N}}{q^{\nu,s}_{0:N}}.
+    \end{equation}
+    Notice that $q^{\pi_{Q^*},s}_{0:N}$ and $q^{\nu,s}_{0:N}$ share the same transition kernel and differ only in the initial distribution. Hence, 
+    \begin{equation}
+    \begin{aligned}
+    \KL{p^{*, s}_{0:N}}{p^{\nu,s}_{0:N}}&=\KL{q^{\pi_{Q^*}, s}_{0:N}}{q^{\nu,s}_{0:N}}\\
+    &=\KL{q^{\pi_{Q^*},s}_{0}}{q^{\nu,s}_{0}}+\KL{q^{\pi_{Q^*},s}_{1:N|0}}{q^{\nu,s}_{1:N|0}}\\
+    &=\KL{q^{\pi_{Q^*},s}_{0}}{q^{\nu,s}_{0}}\\
+    &=\KL{\pi_{Q^*}(\cdot|s)}{\nu(\cdot|s)}.
+    \end{aligned}
+    \end{equation}
+    Therefore, the optimal Q-value function $Q^*(s, a)$ satisfies
+    \begin{equation}
+    \begin{aligned}
+            Q^*(s, a)&=R(s, a)+\gamma\mathbb{E}_{a'^{0:N}\sim p^{\*,s'}_{0:N}}\left[Q^*(s', a'0)-\eta\KL{p^{*, s'}_{0:N}}{p^{\nu,s'}_{0:N}}\right]\\
+            &=R(s, a)+\gamma\mathbb{E}_{a'\sim \pi_{Q^*}}\left[Q^*(s', a')-\eta\KL{\pi_{Q^*}(\cdot|s')}{\nu(\cdot|s')}\right]\\
+            &=R(s, a)+\gamma\eta\log\mathbb{E}_{a'\sim \nu(\cdot|s')}\left[\exp(Q^*(s',a')/\eta)\right],
+    \end{aligned}
+    \end{equation}
+    which is exactly the optimal Bellman iteration of the problem defined in \eqref{eq:brl_obj}. This means that $Q^*$ is also the optimal Q-value function of the problem defined in \eqref{eq:brl_obj}, and $\pi_{Q^*}$ is correspondingly the optimal solution $\pi^*$. Using Theorem~\ref{thm:optim_is_reverse_process}, we know that $p^{*,s}$ and $\pi^*$ are equivalent:
+    \begin{equation}
+        \begin{aligned}
+            \pi^*(a|s)=\int p^{*, s}_{0:N}(a^{0:N})\delta(a-a^0)\mathrm{d} a^{0:N}\quad \forall s\in \mathcal{S}. 
+        \end{aligned}
+    \end{equation}
+    The proof is completed. 
+\end{proof}  
+    % We conclude the proof by showing that the optimal soft value functions $Q^*$ and $V^*$ of the optimal diffusion policy satisfy the Bellman optimality equations of the KL regularized objective in \eqref{eq:brl_obj},
+    % $$
+    %     \begin{aligned}
+    %         &V^*(s)=\mathbb{E}_{a\sim p^{*,s}_0}\left[Q^*(s,a)\right]+\eta\KL{p^{*,s}_0}{\nu(s)}\\
+    %         &Q^*(s,a)=R(s,a)+\gamma \mathbb{E}_{s'\sim T(s,a)}[V^*(s')].
+    %     \end{aligned}
+    % $$
+    % Here, the second equality is trivially satisfied. The first equality is satisfied because we have $\KL{p_0^{*,s}}{\nu(s)}=\KL{\pi^*(s)}{\nu(s)}=\KL{p_{0:N}^{*,s}}{p_{0:N}^{\nu,s}}$, and
+    % $$
+    %     V^*(s)=\mathbb{E}_{a\sim p^{*,s}_0}\left[Q^*(s,a)\right]+\eta\KL{p_{0:N}^{*,s}}{p_{0:N}^{\nu,s}}
+    % $$
+    % holds by definition.
+
+
+
+
+\begin{lemma}[Soft Policy Evaluation~(adapted from \citet{sac})]
+\label{lemma:soft_policy_eval}
+Consider the soft Bellman backup operator $\mathcal{B}^\pi$ in \eqref{eq:upper_critic} and a function $Q^0:\mathcal{S}\times\mathcal{A}\to\mathbb{R}$. Define $Q^{k+1}=\mathcal{B}^\pi Q^{k}$. Then the sequence $Q^k$ will converge to the soft Q-value of $\pi$ as $k\to\infty$ under Assumption~\ref{ass}.
+
+\end{lemma}
+\begin{proof}
+    Define the KL-augmented reward as 
+    $$
+    \tilde{R}^\pi(s, a)\coloneqq R(s, a) - \eta\mathbb{E}_{a'^{0:N}\sim p^{\pi,s'}_{0:N}}\left[\sum_{n=1}^N\KL{p_{n-1|n}^{\pi,s'}}{p_{n-1|n}^{\nu,s'}}\right],
+    $$
+    and rewrite the policy evaluation update rule as
+    $$
+    Q^{k+1}(s, a)\leftarrow \tilde{R}^{\pi}(s, a)+\gamma \mathbb{E}_{a'^{0:N}\sim p^{\pi,s'}_{0:N}}\left[Q^k(s', a'^0)\right].
+    $$
+    When $\gamma\in(0, 1)$, this update satisfies the $\gamma$-contraction property, which is demonstrated in \citet{sac} to converge to a unique solution. Since $Q^\pi$ satisfies $Q^\pi=\mathcal{B}^\pi Q^\pi$, we obtain that the sequence $Q^k$ converges to $Q^\pi$. Note that we employ a bounded probability ratio to ensure the boundedness of the $Q$-value function rather than requiring the action space to be a finite set.
+\end{proof}
+
+\begin{proposition}[Soft Policy Improvement]\label{proposition:policy_improvement}
+Let $p^{\pi_{\textrm{new}}}$ be the optimizer of the problem defined in \eqref{problem:step_diff}. Under Assumption~\ref{ass}, $V^{\pi_{\textrm{new}},s}_n(a^n)\geq V^{\pi_{\textrm{old}},s}_n(a^n)$ holds for all $n\in\{0, 1, \ldots, N\}$ and $(s, a)\in\mathcal{S}\times\mathcal{A}$.
+\end{proposition}
+\begin{proof}
+    Since $p^{\pi_{\textrm{new}}, s, a^n}$ is the optimizer of the problem \ref{problem:step_diff}, it satisfies
+    $$
+        -\eta\ell^{\pi_{\textrm{old}},s}_n(a^n) + \underset{p^{\pi_{\textrm{old}},s,a^n}_{n-1|n}}{\mathbb{E}}\left[V^{\pi_{\textrm{old}},s}_{n-1}(a^{n-1})\right]=V^{\pi_{\textrm{ old}},s}_{n}(a^{n})\leq -\eta\ell^{\pi_{\textrm{new}},s}_n(a^n) + \underset{p^{\pi_{\textrm{new}},s,a^n}_{n-1|n}}{\mathbb{E}}\left[V^{\pi_{\textrm{old}},s}_{n-1}(a^{n-1})\right].
+    $$
+    For $n=0$, recursively applying the above inequality leads to
+    $$
+    \begin{aligned}
+        &V_0^{\pi_{\textrm{old}}, s}(a^0) \\
+        &= Q^{\pi_{\textrm{old}}}(s, a^0)\\
+        &=R(s, a^0)+\gamma\mathbb{E}_{a'^{0:N}\sim p^{\pi_{\textrm{old}},s'}_{0:N}}\left[Q^{\pi_{\textrm{old}}}(s, a'^0)-\eta\sum_{i=1}^N\ell_i^{\pi_{\textrm{old}},s'}(a'^i)\right]\\
+        &=R(s, a^0)+\gamma\mathbb{E}_{a'^{0:N}\sim p^{\pi_{\textrm{old}},s'}_{0:N}}\left[V^{\pi_{\textrm{old}},s'}_0(a'^0)-\eta\sum_{i=1}^N\ell_i^{\pi_{\textrm{old}},s'}(a'^i)\right]\\
+        &=R(s,a^0)+\gamma\mathbb{E}_{a'^{N}\sim p^{\pi_{\textrm{old}},s'}_{N}}\left[V^{\pi_{\textrm{old}},s'}_N(a'^N)\right]\\
+        &= R(s, a^0)+\gamma\mathbb{E}_{a'^N\sim p^{\pi_{\textrm{new}},s'}_N,a'^{N-1}\sim p^{\pi_{\textrm{old}},s'}_{N-1|N}}\left[V^{\pi_{\textrm{old}},s'}_{N-1}(a'^{N-1})-\eta\ell_N^{\pi_{\textrm{old}},s'}(a'^{N})\right]\\
+        &\leq R(s, a^0)+\gamma\mathbb{E}_{a'^N\sim p^{\pi_{\textrm{new}},s'}_N,a'^{N-1}\sim p^{\pi_{\textrm{new}},s'}_{N-1|N}}\left[V^{\pi_{\textrm{old}},s'}_{N-1}(a'^{N-1})-\eta\ell_N^{\pi_{\textrm{new}},s'}(a'^{N})\right]\\
+        &=R(s, a^0)+\gamma\mathbb{E}_{a'^{N-1:N}\sim p^{\pi_{\textrm{new}},s'}_{N-1:N},a'^{N-2}\sim p^{\pi_{\textrm{old}},s'}_{N-2|N-1}}\left[V^{\pi_{\textrm{old}},s'}_{N-2}(a'^{N-2})-\eta\ell_{N-1}^{\pi_{\textrm{old}},s'}(a'^{N-1})-\eta\ell_N^{\pi_{\textrm{new}},s'}(a'^{N})\right]\\
+        &\leq R(s, a^0)+\gamma\mathbb{E}_{a'^{N-1:N}\sim p^{\pi_{\textrm{new}},s'}_{N-1:N},a'^{N-2}\sim p^{\pi_{\textrm{new}},s'}_{N-2|N-1}}\left[V^{\pi_{\textrm{old}},s'}_{N-2}(a'^{N-2})-\eta\ell_{N-1}^{\pi_{\textrm{new}},s'}(a'^{N-1})-\eta\ell_N^{\pi_{\textrm{new}},s'}(a'^{N})\right]\\
+        &\ldots\\
+        &\leq R(s, a^0)+\gamma\mathbb{E}_{a'^{0:N}\sim p^{\pi_{\textrm{new}},s'}_{0:N}}\left[V^{\pi_{\textrm{old}},s'}_{0}(a'^{0})-\eta\sum_{i=0}^N\ell_i^{\pi_{\textrm{new}},s'}(a'^{i})\right]\\
+        &\ldots\\
+        &\leq V_0^{\pi_{\textrm{new}}, s}(a^0),
+    \end{aligned}
+    $$
+    where the fifth line follows from the definition of the diffusion value functions, the seventh line follows from the above inequality, and the last line follows from recursively expanding the values of successor states. For $n\in\{1, 2, \ldots, N\}$, the proof is similar:
+    $$
+    \begin{aligned}
+        &V^{\pi_{\textrm{old}},s}_{n}(a^{n})\\
+        &=-\eta\ell^{\pi_{\textrm{old}},s}_n(a^n) + \mathbb{E}_{p^{\pi_{\textrm{old}},s,a^n}_{n-1|n}}\left[V^{\pi_{\textrm{old}},s}_{n-1}(a^{n-1})\right]\\
+        &\leq-\eta\ell^{\pi_{\textrm{new}},s}_n(a^n) + \mathbb{E}_{p^{\pi_{\textrm{new}},s,a^n}_{n-1|n}}\left[V^{\pi_{\textrm{old}},s}_{n-1}(a^{n-1})\right]\\
+        &\leq-\eta\ell^{\pi_{\textrm{new}},s}_n(a^n) + \mathbb{E}_{p^{\pi_{\textrm{new}},s,a^n}_{n-1|n}}\left[-\eta\ell^{\pi_{\textrm{new}},s}_{n-1}(a^{n-1}) + \mathbb{E}_{p^{\pi_{\textrm{new}},s,a^{n-1}}_{n-2|n-1}}\left[V^{\pi_{\textrm{old}},s}_{n-2}(a^{n-2})\right]\right]\\
+        &\ldots\\
+        &\leq \mathbb{E}_{p^{\pi_{\textrm{new}},s,a^n}_{0:n-1|n}}\left[-\eta\sum_{i=1}^{n}\ell^{\pi_{\textrm{new}},s}_{i}(a^{i}) + V^{\pi_{\textrm{old}}, s}_0(a^0)\right]\\
+        &\leq \mathbb{E}_{p^{\pi_{\textrm{new}},s,a^n}_{0:n-1|n}}\left[-\eta\sum_{i=1}^{n}\ell^{\pi_{\textrm{new}},s}_{i}(a^{i}) + V^{\pi_{\textrm{new}}, s}_0(a^0)\right]\\
+        &=V_n^{\pi_{\textrm{new}}, s}(a^n)\\
+    \end{aligned}
+    $$
+    where the last inequality is obtained previously. This completes the proof. Note that the $n=0$ case already guarantees the policy improvement in the environment MDP. 
+\end{proof}
+
+
+\begin{proposition}[Soft Policy Iteration~(adapted from \citet{sac})]\label{proposition:policy_iteration}
+Under Assumption~\ref{ass}, repeated application of soft policy evaluation in \eqref{eq:upper_critic} and \eqref{eq:intermediate_value} and soft policy improvement in \eqref{problem:step_diff} from any $p^\pi\in\Pi$ converges to a policy $p^{\pi^*}$ such that $V_n^{\pi^*,s}(a)\geq V_n^{\pi,s}(a)$ for all $p^\pi\in\Pi$, $n\in\{0,1,\ldots,N\}$, and $(s,a)\in\mathcal{S}\times\mathcal{A}$.
+\end{proposition}
+\begin{proof}
+
+Let $p^{\pi_i}$ be the diffusion policy at iteration $i$. By Proposition~\ref{proposition:policy_improvement}, the sequence $V_n^{\pi_i, s}$ is monotonically increasing. Given that $V^{\pi,s}_n$ is finite due to the boundedness of rewards and the pathwise KL, the sequence converges to some $p^{\pi^*}$. Since the policy improvement has converged, it must be $V^{\pi^*,s}_n(a)\geq V^{\pi, s}_n(a)$ for any diffusion policy $p^\pi$, $(s, a)\in\mathcal{S}\times\mathcal{A}$ and $n\in\{0, 1, \ldots, N\}$. This completes the proof. 
+\end{proof}
+% The proof duplicates that in \citet{sac}.
+    % Let $p^{\pi_i}$ be the diffusion policy at the $i$-th iteration. Proposition~\ref{proposition:policy_improvement} ensures the monotonic improvement of $V^{\pi_i,s}_n(a^n)$. The monotone convergence theorem guarantees the convergence of $p^{\pi_i}$ since the soft value function $V^{\pi_i,s}_n$ is bounded for $p^\pi\in\Pi$.
+    
+    % We will still need to
+% show that π∗ is indeed optimal. At convergence, it must be case that Jπ∗ (π∗( · |st)) < Jπ∗ (π( · |st)) for all π ∈ Π, π 6 = π∗.
+% Using the same iterative argument as in the proof of Lemma 2, we get Qπ∗
+% (st, at) > Qπ (st, at) for all (st, at) ∈ S × A,
+% that is, the soft value of any other policy in Π is lower than that of the converged policy. Hence π∗ is optimal in Π
+
+
+
+\section{Continuous-Time Perspective of the Pathwise KL}\label{appsec:continuous_time}
+\citet{diffusion_sde} build the connection between diffusion models and reverse stochastic differential equations (SDEs) that gradually remove noise from data and transform a prior noise distribution into the target distribution. Based on the SDE understanding of diffusion models, we aim to investigate whether the introduced pathwise KL can be extended to continuous-time diffusion modeling.  
+
+We define the forward diffusion SDE, which perturbs data into a prior distribution, as the following:
+\begin{equation}\label{eq:forward_sde}
+    \mathrm d x = f(x, t)\mathrm d t + g(t)\mathrm dw,
+\end{equation}
+where $w$ is the standard Wiener process, $f$ is the drift coefficient, and $g$ is the diffusion coefficient. The reverse process of this SDE is also a diffusion SDE:
+\begin{equation}\label{eq:reverse_sde}
+    \mathrm d x = \left[f(x,t)-g(t)^2 \nabla_x \log p_t(x)\right]\mathrm dt + g(t)\mathrm d \bar{w},
+\end{equation}
+where $\bar{w}$ is the reverse-time standard Wiener process and $\mathrm dt$ is a infinitesimal \textit{negative} time interval. In practice, we can use a parameterized neural network $s^\theta(x, t)$ to estimate the score of the marginal distribution using score matching:
+\begin{equation}
+    \begin{aligned}
+        \theta^*=\argmin_{\theta}\mathbb{E}_{t, x(0),x(t)|x(0)}\left[\lambda(t)\|s_\theta(x(t), t)-\nabla_{x(t)}\log q_{t|0}(x(t)|x(0))\|^2\right],
+    \end{aligned}
+\end{equation}
+where $q_{t|0}$ is the distribution of $x(t)$ given the initial sample $x(0)$. After the training is completed, we can substitute the score function in \eqref{eq:reverse_sde} and solve the reverse SDE to obtain samples that follow the target distribution. 
+
+We consider two forward SDEs with the same drift and diffusion coefficient, but with different initial distributions $q_0^\pi$ and $q_0^\nu$. Let the approximated score networks be $s^\pi$ and $s^\nu$, and therefore we consider the following reverse SDEs:
+\begin{enumerate}
+\item $\mathrm d x = \left[f(x,t)-g(t)^2 s^\pi(x, t)\right]\mathrm dt + g(t)\mathrm d \bar{w}$ under measure $\mathbb{P}^\pi$, 
+\item $\mathrm d x = \left[f(x,t)-g(t)^2 s^\nu(x, t)\right]\mathrm dt + g(t)\mathrm d \bar{w}$ under measure $\mathbb{P}^\nu$.
+\end{enumerate}
+Our goal is to compute the KL divergence between the distributions of the two reverse SDEs. Using Girsanov's theorem~\citep{oksendal2013stochastic}, we have
+\begin{equation}\label{appeq:sde_kl}
+    \begin{aligned}
+        \KL{\mathbb{P^\pi}}{\mathbb{P}^\nu}&=\mathbb{E}_{\mathbb{P}^\pi}\left[\log \frac{\mathrm{d}\mathbb{P}^\pi}{\mathrm{d}\mathbb{P}^\nu}\right]\\
+        &=\mathbb{E}_{\mathbb{P}^\pi}\left[\int_{0}^T\frac{[[f(x,t)-g(t)^2s^\pi(x, t)]-[f(x, t)-g(t)^2s^\nu(x, t)]]^2}{2g(t)^2}\mathrm{d}t\right]\quad\quad\text{(Girsanov's theorem)}\\
+        &=\mathbb{E}_{\mathbb{P}^\pi}\left[\int_{0}^T\frac{g(t)^4\|s^\pi(x, t)-s^\nu(x, t)\|^2}{2g(t)^2}\mathrm{d}t\right]\\
+        &=\mathbb{E}_{\mathbb{P}^\pi}\left[\int_{0}^T\frac{g(t)^2}2\|s^\pi(x, t)-s^\nu(x, t)\|^2\mathrm{d}t\right]. 
+    \end{aligned}
+\end{equation} 
+Instantiating the SDE with Variance Preserving noise schedule~\citep{diffusion_sde}:
+\begin{equation}
+    \begin{aligned}
+        f(x, t) &= \frac 12 \beta(t)x,\\
+        g(t) &= \sqrt{\beta(t)},
+    \end{aligned}
+\end{equation}
+we have
+\begin{equation}
+    \begin{aligned}
+        \KL{\mathbb{P}^\pi}{\mathbb{P}^\nu}&=\mathbb{E}_{\mathbb{P}^\pi}\left[\int_0^T\frac{\beta(t)}{2}\|s^\pi(x, t)-s^\nu(x, t)\|^2\mathrm{d}t\right].
+    \end{aligned}
+\end{equation}
+
+\eqref{appeq:sde_kl} presents the analytical form of the KL divergence between two reverse diffusion processes. In the following content, we continue to demonstrate that the pathwise KL introduced in this paper corresponds to \eqref{appeq:sde_kl} in the limit of $N\to\infty$. 
+
+Examining the pathwise KL objective defined in~\eqref{eq:pathwise_kl}, 
+\begin{equation}
+    \begin{aligned}
+        &\KL{p^{\pi}_{0:N}}{p^{\nu}_{0:N}}\\
+        &=\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^{N}\KL{p^{\pi,x^n}_{n-1|n}}{p^{\nu,x^n}_{n-1|n}}\right]\\
+        &=\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\|\mu^\pi(x^n, n)-\mu^\nu(x^n, n)\|^2}{2\sigma_n^2}\right]\\
+        % &=\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\|\mu^\pi(x, n)-\mu^\nu(x, n)\|^2}{2\sigma_n^2}\right]\\
+        &=\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\beta_n^2}{2\sigma_n^2(1-\beta_n)}\|s_n^\pi(x^n)-s_n^\nu(x^n)\|^2\right]\\
+        &=\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\beta_n(1-\bar{\alpha}_n)}{2(1-\bar{\alpha}_{n-1})(1-\beta_n)}\|s_n^\pi(x^n)-s_n^\nu(x^n)\|^2\right],
+    \end{aligned}
+\end{equation}
+where $s_n$ is the score function at step $n$. 
+
+Define $\Delta t=\frac TN$, by \citet{diffusion_sde}, we can show that in the limit of $N\to\infty$, we have $\beta_n=\beta(\frac {nT}N)\Delta t\to0$, $x^n=x(\frac {nT}N)$, and $s_n(x^n)=s(x(\frac {nT}N), \frac {nT}N)$. Therefore, 
+\begin{equation}
+    \begin{aligned}
+        \lim_{N\to\infty}\KL{p^{\pi}_{0:N}}{p^{\nu}_{0:N}}&=\lim _{N\to\infty}\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\beta_n(1-\bar{\alpha}_n)}{2(1-\bar{\alpha}_{n-1})(1-\beta_n)}\|s_n^\pi(x^n)-s_n^\nu(x^n)\|^2\right]\\
+        &=\lim _{N\to\infty}\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\beta_n}{2}\|s_n^\pi(x^n)-s_n^\nu(x^n)\|^2\right]\\
+        &=\lim _{N\to\infty}\mathbb{E}_{p^{\pi}_{0:N}}\left[\sum_{n=1}^N \frac{\beta(\frac {nT}N)}{2}\|s^\pi(x(\frac {nT}N), \frac {nT}N)-s^\nu(x(\frac {nT}N), \frac {nT}N)\|^2\Delta t\right]\\
+        &=\mathbb{E}_{p^\pi}\left[\int_0^T\frac{\beta(t)}{2}\|s^\pi(x(t), t)-s^\nu(x(t), t)\|^2\mathrm{d}t\right],
+    \end{aligned}
+\end{equation}
+which exactly corresponds to the KL divergence of SDE in \eqref{appeq:sde_kl}. 
+
+\section{Supplementary Experiment Results}\label{appsec:experiment}
+
+\subsection{Discussions about Training Time}
+A systematic breakdown and comparison of the runtime between \algbb, DAC, and Diffusion-QL is illustrated in Figure~\ref{appfig:runtime}. We evaluate \algbb, DAC, and Diffusion-QL with workstations equipped with NVIDIA RTX 4090 cards and the \textit{walker2d-medium-replay-v2} dataset. 
+
+Our method consists of three distinct subroutines. The first one is pre-training the behavior diffusion with standard diffusion loss. Our observation is that this phase accounts for a minor fraction (about 8 minutes) of the overall runtime, so we ignore it in the following discussion. The second one is training value functions, including $Q^\pi$ and $V^\pi$. The approach to training $Q^\pi$ is identical to established methods such as Diffusion-QL~\citep{dql} and DAC~\citep{dac}, which is essentially sampling diffusion paths at the next state $s'$ and calculating the temporal difference target. In addition to $Q^\pi$, our method additionally trains $V^\pi$. However, this supplementary computation is not resource-intensive, as it only requires single-step diffusion to compute the training target $V^\pi$. Therefore, the additional cost of training diffusion value functions $V^\pi$ is a constant that does not scale with diffusion steps. The third subroutine is training the actor. Akin to EDP~\citep{edp}, \algbb only requires a single-step diffusion rollout, and thus the cost of training the actor is also a constant that does not scale with diffusion steps. In contrast, Diffusion-QL needs to differentiate with respect to the whole diffusion path, which causes a drastic increase in actor runtime. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/appfig_runtime.pdf}
+    \caption{Algorithm Runtime of \algbb, DAC and Diffusion-QL. }
+    \label{appfig:runtime}
+\end{figure}
+
+\subsection{Discussion about Inference Time}
+Apart from training time, we also evaluate inference time since the latency is critical in real-world applications like robotic control. To benchmark the inference time accurately, we sampled 10,000 states from the \textit{walker2d-medium-replay-v2} dataset, executed the diffusion policies with a batch size of 1, and calculated the average inference time across 10,000 trials. Figure~\ref{appfig:inference_time} compares the inference speed of \algbb and baseline algorithms. Since the specific choice of deep learning backend may have a significant impact on computational latency, we explicitly indicate the backend used for each result. 
+
+Among diffusion-based methods, Diffusion-QL generates actions by traversing the reverse diffusion process, and \algbb and DAC generate $N=10$ actions in parallel, followed by Q-value-based sample selection. Given that GPU acceleration effectively amortizes the cost of parallel generation and the calculation of $Q$ values only requires inference through a relatively small network, \algbb and DAC are about 10\% slower than JAX-based Diffusion-QL. In the meantime, implementations based on PyTorch are much slower than JAX-based implementations due to the dynamic graph execution. The computational overhead is most pronounced in QGPO, which incurs substantial inference latency due to its classifier-guided generation process.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/inference_time.pdf}
+    \caption{Inference Time Comparison.}
+    \label{appfig:inference_time}
+\end{figure}
+
+\subsection{Generation Path On Synthetic 2D Tasks}
+We plot the generation results of \algbb on all synthetic 2D datasets in Figure~\ref{appfig:2d_actor}. Throughout these datasets, we witness a close resemblance between the final sample distribution and the ground truth target distribution as depicted in Figure~\ref{appfig:2d_sample}. The sampling begins with gradual movements across the 2D plane and converges in later diffusion steps. This pattern is further demonstrated by the diffusion value functions, which offer weaker guidance during the initial steps but provide stronger guidance in the final steps. On the contrary, the generation results (Figure~\ref{appfig:dac_toy2d_actor}) of DAC, which leverages $\nabla_{a^n}Q^\pi(s, a^n)$ rather than the gradient of diffusion values $\nabla_{a^n}V^{\pi,s}_n(a^n)$ to guide the generation, fails to capture the target distribution. This is consistent with the findings from QGPO~\citep{qgpo}, which demonstrates that the guidance in \algbb is \textit{exact} energy guidance, while the guidance used by DAC is not. 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/appfig_toy2d_actor.pdf}
+    \caption{Illustration of the diffusion policy and the diffusion value function from \algbb on synthetic 2D datasets. The regularization strength is set to $\eta=0.06$. }
+    \label{appfig:2d_actor}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/appfig_dac_toy2d_actor.pdf}
+    \caption{Illustration of the diffusion policy and the Q-value function from DAC on synthetic 2D datasets. The regularization strength is set to $\eta=0.06$. }
+    \label{appfig:dac_toy2d_actor}
+\end{figure}
+
+\subsection{Training Curves of D4RL Datasets}\label{appsec:curves}
+The curves of evaluation scores on D4RL datasets are presented in Figure~\ref{appfig:mujoco} and Figure~\ref{appfig:antmaze}. 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/appfig_mujoco.pdf}
+    \caption{Evaluation scores of \algbb on D4RL Locomotion datasets. Results are aggregated using 5 independent seeds and 10 evaluation episodes for each seed. }
+    \label{appfig:mujoco}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/appfig_antmaze.pdf}
+    \caption{Evaluation scores of \algbb on D4RL Locomotion datasets. Results are aggregated using 5 independent seeds and 100 evaluation episodes for each seed. }
+    \label{appfig:antmaze}
+\end{figure}
+
+\subsection{Ablation on Policy Parameterization}
+Full results of different policy parameterizations are presented in Figure~\ref{appfig:abla_arch}, from which we found that the diffusion policy achieves the best overall performance. Note that we kept the hyperparameter tuning effort the same across different methods (see Section~\ref{appsec:abla_arch_detail}). 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/appfig_abla_arch.pdf}
+    \caption{Ablation study with the policy parameterizations. Results are aggregated using 5 independent seeds and 10 evaluation episodes for each seed. }
+    \label{appfig:abla_arch}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{images/appfig_abla_step.pdf}
+    \caption{Ablation study with the number of diffusion steps $N$. Results are aggregated using 5 independent seeds and 10 evaluation episodes for each seed. }
+    \label{appfig:abla_step}
+\end{figure}
+
+\subsection{Ablation on Diffusion Steps $N$}
+The number of diffusion steps $N$ impacts both generation quality and divergence calculation. We empirically evaluate three configurations ($N=2$, $5$, and $10$) in Figure~\ref{appfig:abla_step}. Generally, the performance of \algbb degrades substantially when $N$ is too small; however, the improvement diminishes when $N$ exceeds a certain threshold. Based on these observations, we adopt $N=5$ as our default choice to trade off the efficiency and performance. 

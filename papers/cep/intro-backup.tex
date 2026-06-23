@@ -1,0 +1,73 @@
+\section{Introduction}
+
+
+
+
+
+
+
+
+
+
+
+Diffusion models~\citep{sohl2015deep,ho2020denoising,song2020score} have demonstrated incredible success recently.
+A key for applying diffusion models in real-world tasks is to embed human controllability in the sampling procedure. Particularly, a common paradigm for introducing human preference in diffusion models is \textit{guided sampling}, which includes \textit{classifier guidance}~\citep{diffusion_beat_gan}, \textit{classifier-free guidance}~\citep{ho2021classifier} and other guidance methods~\citep{nichol2021glide,ho2022video,zhao2022egsde}. By leveraging guided sampling, diffusion models can realize amazing text-to-image generation~\citep{ramesh2022hierarchical,saharia2022photorealistic,rombach2022high}, video generation~\citep{ho2022video}, controllable text generation~\citep{li2022diffusion}, inverse molecular design~\citep{bao2022equivariant} and 
+reinforcement learning~\citep{diffuser, dd}.
+
+Both classifier and classifier-free guidance deal with a conditional sampling problem where there exists paired data with additional conditioning variables during the training procedure, such as data classes~\citep{diffusion_beat_gan}, semantic attributes~\citep{graikos2022diffusion} or multi-modal inputs~\citep{ramesh2022hierarchical,saharia2022photorealistic,rombach2022high}.
+However, sometimes it is difficult to describe human preference through a conditioning variable and we can only embed our preference through a scalar function in data space.
+For example, such a function could be a reward function or pretrained Q-function in reinforcement learning~\citep{diffuser, sfbc}, human feedback in dialogue systems~\citep{ziegler2019fine}, cosine similarity between sample features and designated features in image synthesis~\citep{zhao2022egsde}, or $L_2$-distance between sampled frame and the previous frame in video synthesis~\citep{ho2022video}. In such cases, we aim to leverage these human preference to manipulate the desired distribution and draw samples by diffusion sampling with additional guidance, but it is hard to directly use classifier guidance or classifier-free guidance since no actual condition is provided.
+
+
+
+
+
+
+
+Formally, suppose we have collected a dataset $\{\x^{(i)}\}_{i=1}^N$ from an unknown data distribution $q(\x)$ defined in $\gX\subseteq \R^d$. We want to sample from the following general distribution:
+\begin{equation}
+\label{Eq:target_distribution_intro}
+    p(\x) \propto q(\x)e^{-\beta\gE(\x)},
+\end{equation}
+where $\gE(\cdot)$ is an \textit{energy function} from $\Xc\in \R^d$ to $\R$ and we can compute $\gE(\x)$ for each data sample. $\beta \geq 0$ is the inverse temperature for controlling the energy strength. 
+Such formulation is common across various machine learning fields, such as product of experts by Gibbs distribution~\citep{hinton2002training}, posterior-regularized Bayesian inference~\citep{zhu2014bayesian}, exponential tilting of generative models~\citep{xiao2020exponential}, constrained policy optimization in reinforcement learning~\citep{awr,ziegler2019fine}, and inverse problems~\citep{chung2022diffusion}. 
+The high density region of $p(\x)$ is approximately the intersection of both the high density regions of $q(\x)$ and $e^{-\beta\gE(\x)}$. As a result we can insert controllability by embedding the desired properties into the energy function $\gE(\cdot)$. 
+The choice of the energy function $\gE(\cdot)$ is highly flexible: we only need to ensure that the integral of $q(\x)e^{-\beta\gE(\x)}$ over $\x\in\gX$ is finite, and do not necessarily need conditioning variables. 
+We can also introduce additional conditioning variables $c$ by an energy function $\gE(\cdot, c)$ to embed the condition information.
+In particular, let $\beta=1$ and $\gE(\x,c) = -\log q(c|\x)$, the target distribution $p(\x)$ becomes a conditional distribution $q(\x|c)$, which recovers the classic conditional sampling problem as a special case.
+
+
+
+
+
+
+
+
+
+
+
+Assume we have learned a diffusion model $q_g(\x) \approx q(\x)$. To sample from the desired $p(\x)$, many existing works~\citep{diffuser, zhao2022egsde, bao2022equivariant,zhong2022deep,ho2022video,chung2022diffusion,kawar2022denoising} leverage the pretrained diffusion model $q_g(\x)$ and apply diffusion sampling with an additional guidance term.
+Since such guidance is related to the energy function $\gE(\cdot)$, we refer to it as \textit{energy guidance} and the whole sampling procedure as \textit{energy-guided sampling}.
+However, all previously proposed guidance is manually or arbitrarily defined across the diffusion process, and it is unstudied whether the final samples follow the desired distribution $p(\x)$.
+In this work, we analysis and derive the exact formulation of the desired guidance for diffusion sampling from $p(\x)$ in \eqref{Eq:target_distribution_intro}. In contrast with previous work, we show that the exact guidance in the diffused data space during the sampling procedure should be completely determined by the energy function $\gE(\cdot)$ in the original data space. Thus, we cannot use arbitrary human-designed guidance during the diffusion sampling.
+
+
+
+To learn the intermediate energy guidance, we further propose a novel training method by comparing the energy $\gE(\cdot)$ within a set of noise-perturbed data samples and using their soft energy labels as supervising signals, which is named \textit{contrastive energy prediction (CEP)}. We theoretically prove that the gradient of the optimal learned model is exactly the intermediate energy guidance, and thus guarantee the convergence to sampling from $p(\x)$. In a special formulation of $\gE(\cdot)$ which corresponds to the classic conditional sampling case, we additionally show that CEP could be understood as an alternative contrastive approach of the classifier guidance method~\citep{diffusion_beat_gan}.
+
+
+
+
+
+
+To verify the effectiveness and scalability of CEP, we take two mainstream applications of \eqref{Eq:target_distribution_intro}: offline reinforcement learning (RL) and image synthesis.
+For offline RL, we formulate the classic constrained policy optimization problem~\citep{rwr, awr} as Q-guided policy optimization, and evaluate our method in mainstream D4RL \citep{d4rl} benchmarks. Extensive experiments demonstrate that our method outperforms existing state-of-the-art algorithms in most tasks, especially in hard tasks such as AntMaze. For image synthesis, we evaluate conditional sample quality by CEP against classic classifier guidance \citep{diffusion_beat_gan} both quantitatively and qualitatively on ImageNet, and find two methods almost equally well-performing. We also provide an example of energy-guided image synthesis to influence color appearance of sampled images and validate flexibility of CEP.
+
+\begin{enumerate}
+    \item Introduce the problem of Eq. (1). What is the problem, and why it is a significant problem?
+    \item $q$ diffusion model, guided sampling.
+\end{enumerate}
+
+
+
+

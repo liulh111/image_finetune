@@ -1,0 +1,24 @@
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/path.pdf}
+    \caption{Illustration of the behavior-regularized RL framework with different policy parameterizations. Unimodal policies, such as deterministic policies (left), compute the behavior as the center of mass and therefore lead to misleading regularizations; while our method (right) harnesses the flexibility of diffusion models, and the regularization is calculated as the accumulated discrepancies in diffusion directions of the actor and the behavior diffusion. }
+    \label{fig:intro_policy}
+    % \vspace{-3mm}
+\end{figure}
+
+Despite its huge success in industrial applications such as robotics~\citep{robotics}, game AI~\citep{alphastar}, and generative model fine-tuning~\citep{instruct_gpt}, reinforcement learning (RL) algorithms typically require millions of online interactions with the environment to achieve meaningful optimization~\citep{sac,ppo}. Given that online interaction can be hazardous and costly in certain scenarios, offline RL, which focuses on optimizing policies with static datasets, emerges as a practical and promising avenue~\citep{levine_survey}. 
+
+However, without access to the real environment, RL algorithms tend to yield unrealistic value estimations for actions that are absent from the dataset~\citep{levine_survey,td3bc}. Since RL necessitates querying the values of unseen actions to further refine its policy beyond the dataset, it is prone to exploiting the values of those unseen actions, leading to serious overestimation in value function. To manage this risk, one predominant approach is to employ behavior regularization~\citep{bcq,bear,brac,rebrac}, which augments the usual RL objectives by incorporating penalty terms that constrain the policy to remain close to the behavior policy that collects the datasets. In this way, the policy is penalized for choosing unreliable out-of-distribution (OOD) actions and thus exercises the principle of pessimism in the face of uncertainty. 
+% This approach has been extensively explored in existing literature.
+
+Most preliminary works in offline RL assume explicit policy distributions~\citep{td3bc,sac,sacd}; for instance, the agent's policy is often modeled as a Gaussian distribution with parameterized mean and diagonal covariance, or a deterministic distribution that directly outputs the action. Despite the computational efficiency, such assumptions present significant challenges within the aforementioned behavior-regularized framework~\citep{dql,idql,sfbc}. The underlying difficulty originates from the multi-modality of the distributions and manifests in two ways: 1) the dataset may be collected from multiple policy checkpoints, meaning that using unimodal distributions to approximate the behavior policy for regularization can introduce substantial approximation errors (see Figure~\ref{fig:intro_policy}); 2) the optimal policy distribution in behavior-regularized RL framework is actually the Boltzmann distribution of the optimal value function~\cite{sql,awac}, which is inherently multi-modal as well. Such limitation motivates researchers to explore diffusion models, which generate actions through a series of denoising steps, as a viable parameterization of the policy~\citep{dql,idql,srpo,dtql,dac,zhang2024entropy}. 
+
+Nonetheless, extending the behavior-regularized RL framework to diffusion policies faces specific challenges. Although diffusion models are capable of generating high-fidelity actions, the log-probability of the generated actions is difficult to compute~\citep{diffusion_sde}. Consequently, the calculation of regularization terms, such as Kullback-Leibler (KL) divergence, within the behavior-regularized RL framework remains ambiguous~\citep{zhang2024entropy,wang2024diffusion}. Besides, it is also unclear how to improve diffusion policies while simultaneously imposing effective regularization. In this paper, we introduce \algbb, which provides an efficient and effective framework tailored for diffusion policies. Specifically:
+
+1) Framing the reverse process of diffusion models as an MDP, we propose to implement the KL divergence w.r.t. the diffusion generation path, rather than the clean action samples (Figure~\ref{fig:intro_policy}); 
+
+2) Building upon this foundation, we propose a two-time-scale actor-critic method to optimize diffusion policies.  Instead of differentiating the policy along the entire diffusion path, \algbb estimates the values at intermediate diffusion steps to amortize the optimization, offering efficient computation, convergence guarantee, and state-of-the-art performance;
+
+3) Experiments conducted on synthetic 2D datasets reveal that our method effectively approximates the target distribution. Furthermore, when applied to continuous control tasks provided by D4RL, \algbb demonstrates superior performance compared to baseline offline RL algorithms. 
+

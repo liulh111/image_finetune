@@ -1,0 +1,153 @@
+\section{Q-Guided Policy Optimization for Offline Reinforcement Learning}
+\begin{table*}[t]
+\centering
+\small
+\resizebox{1.0\textwidth}{!}{%
+\begin{tabular}{llccccccccc}
+\toprule
+\multicolumn{1}{c}{\bf Dataset} & \multicolumn{1}{c}{\bf Environment} & \multicolumn{1}{c}{\bf CQL}& \multicolumn{1}{c}{\bf BCQ}  & \multicolumn{1}{c}{\bf IQL} & \multicolumn{1}{c}{\bf SfBC} & \multicolumn{1}{c}{\bf DD} & \multicolumn{1}{c}{\bf Diffuser} & \multicolumn{1}{c}{\bf D-QL}& \multicolumn{1}{c}{\bf D-QL@1} & \multicolumn{1}{c}{\bf QGPO (ours)} \\
+\midrule
+Medium-Expert & HalfCheetah    & $62.4$               &  $64.7    $ &  $86.7   $  & $\bf{92.6}$   & $90.6$     & $79.8$       &  $\bf{96.1}$& $ \bf{94.8}$ & $\bf{93.5\pm0.3}$               \\
+Medium-Expert & Hopper         & $98.7$               &  $100.9$    &  $    91.5$ & $\bf{108.6}$  &$\bf{111.8}$& $\bf{107.2}$ &$\bf{110.7}$ & $100.6$      & $\bf{108.0\pm2.5}$           \\
+Medium-Expert & Walker2d       & $\bf{111.0}$         & $57.5$      & $\bf{109.6}$& $\bf{109.8}$  &$\bf{108.8}$& $\bf{108.4}$ & $\bf{109.7}$& $\bf{108.9}$ & $\bf{110.7\pm0.6}$           \\
+\midrule
+Medium        & HalfCheetah    &  $44.4$              &  $40.7$     &  $47.4     $& $45.9$        & $49.1$     & $44.2$       &  $50.6$     & $47.8$       & $\bf{54.1\pm0.4}$           \\
+Medium        & Hopper         &  $58.0$              &  $54.5$     &  $66.3$     & $57.1$        & $79.3$     & $58.5$       &$ 82.4      $& $64.1$       & $\bf{98.0\pm2.6}$ \\
+Medium        & Walker2        &  $79.2$              &  $53.1$     &  $78.3$     & $77.9$        & $\bf{82.5}$ & $79.7$       &$\bf{85.1}$  & $82.0$       & $\bf{86.0\pm0.7}$ \\
+\midrule
+Medium-Replay & HalfCheetah    &  $\bf{46.2}$         &  $38.2$     &  $44.2$     &   $37.1$      &$39.3$& $42.2$       &$\bf{47.5}$  & $44.0$       & $\bf{47.6\pm1.4}$ \\
+Medium-Replay & Hopper         &  $48.6$              &  $33.1$     &  $94.7$     &   $86.2$      & $\bf{100.0}$     & $\bf{96.8}$  & $\bf{100.7}$& $63.1$       & $\bf{96.9\pm2.6}$ \\
+Medium-Replay & Walker2d       &  $26.7$              &  $15.0$     &  $73.9$     &   $65.1$      & $75.0$     & $61.2$       &  $\bf{94.3}$& $75.4$       & $84.4\pm4.1$ \\
+\midrule
+\multicolumn{2}{c}{\bf Average (Locomotion)}&$63.9$   &  $51.9$     & $76.9$      &   $75.6$      &$81.8$      &      $75.3$       & $\bf{86.3}$ & $75.6$       & $\bf{86.6}$ \\
+\midrule
+Default       & AntMaze-umaze  &  $74.0$              &  $78.9$     & $87.5$      & $\bf{92.0}$   & -          & -            & $68.6$      & $69.4$       & $\bf{96.4\pm1.4}$ \\
+Diverse       & AntMaze-umaze  &  $\bf{84.0}$         &  $55.0  $   & $62.2$      & $\bf{85.3}$   & -          & -            &$53.0$       & $56.4$       & $74.4\pm9.7$ \\
+\midrule  
+Play          & AntMaze-medium &  $61.2$              &  $0.0$      & $71.2$      & $\bf{81.3}$   & -          & -            & $0.0$       & $1.0$        & $\bf{83.6\pm4.4}$ \\
+Diverse       & AntMaze-medium &  $53.7$              &  $0.0$      & $70.0$      & $\bf{82.0}$   & -          & -            & $18.4$      & $14.8$       & $\bf{83.8\pm3.5}$ \\
+\midrule
+Play          & AntMaze-large  &  $15.8$              &  $6.7$      & $39.6$      & $59.3$        & -          & -            & $10.6$      & $15.8$       & $\bf{66.6\pm9.8}$ \\
+Diverse       & AntMaze-large  &  $14.9$              &  $2.2$      & $47.5$      & $45.5$        & -          & -            & $4.2$       &  $1.6$       & $\bf{64.8\pm5.5}$ \\
+\midrule
+\multicolumn{2}{c}{\bf Average (AntMaze)}&  $50.6$    &  $23.8$     & $63.0$      &   $74.2$      & -            &   -   &  $25.8$    & $26.5$       & $\bf{78.3}$ \\
+\specialrule{.05em}{.4ex}{.1ex}
+\specialrule{.05em}{.1ex}{.65ex}
+
+\multicolumn{2}{c}{\bf{\# Action candidates}}&$1$   &  $100$     & $1$  & $32$  &   $1$     & $1$  &   $50$  & $1$       & $1$ \\
+\multicolumn{2}{c}{\bf{\# Diffusion steps}}&-   &  -     & -  & $15$  &   $100$     & $100$  &   $5$   & $5$       & $15$ \\
+\bottomrule
+
+\end{tabular}
+}
+\caption{
+Evaluation numbers of D4RL benchmarks (normalized as suggested by \citet{d4rl}). We report mean and standard deviation of algorithm performance across 5 random seeds at the end of training. Numbers within 5 percent of the maximum in every individual task are highlighted. We rerun the experiments of Diffusion-QL to ensure a consistent evaluation metric. See \cref{Sec:rl_detail} for details. }
+\label{tbl:rl_results}
+\vspace{-0.2in}
+\end{table*}
+
+
+In this section, we showcase how our method can be applied in offline RL, including problem formulation in \cref{sec:rl_formulation}, algorithm method in \cref{sec:rl_method} and \cref{softmax_ql}, and experimental results in \cref{Sec:rl_result}. A pseudocode is provided in \cref{Sec:pseudocode}.
+\subsection{Problem Formulation}
+\label{sec:rl_formulation}
+Recall that from \eqref{Eq:pi_optimal}, our desired policy $\pi^*$ follows $\pi^*(\va|\vs) \propto \ \mu(\va|\vs) \ e^{\beta Q_\psi(\vs, \va)}$, where the behavior policy $\mu(\va|\vs)$ is a diffusion model.
+In order to sample actions from $\pi^*$ by diffusion sampling, we denote $\mu_0 : = \mu$, $\pi_0 : = \pi$, $\va_0:=\va$ at time $t=0$. Then we construct a forward diffusion process to simultaneously diffuse $\mu_0$ and $\pi_0$ into the same noise distribution, where $\pi_{t0}(\va_t|\va_0, \vs) \coloneqq \mu_{t0}(\va_t|\va_0, \vs) = \gN(\va_t|\alpha_t\va_0,\sigma_t^2\mI)$. 
+
+According to \cref{thrm:intermediate_energy_guidance}, by replacing the distribution $q$ with $\mu$, $p$ with $\pi$, and the energy function $\gE$ with $-Q$ following conventions in offline RL literature, we have the marginal distributions $\mu_t$ and $\pi_t$ of the noise-perturbed action $\va_t$ satisfy:
+\begin{equation}
+    \label{Eq:pi_optimal_t_space}
+    \pi_t(\va_t|\vs) \propto \mu_t(\va_t|\vs) e^{\gE_t(\vs, \va_t)}.
+\end{equation}
+$\gE_t(\vs, \va_t)$ is an intermediate energy function determined by the learned action evaluation model $Q_\psi(\vs, \va_0)$. Specifically $\gE_t(\vs, \va_t) = \log \E_{\mu_{0t}(\va_0|\va_t, \vs)}\left[e^{\beta Q_\psi(\vs, \va_0)}\right]$ and $\gE_0(\vs, \va_0)=\beta Q_\psi(\vs, \va_0)$.
+
+We now consider how to estimate the score function of $\pi_t(\va|\vs)$ such that we can sample actions from $\pi_0$ following \eqref{Eq:diffusion_ode}. By \eqref{Eq:pi_optimal_t_space}, we have:
+\begin{equation}
+\label{Eq:rl_energy_guidance}
+    \nabla_{\va_t}\log \pi_t(\va_t|\vs) = \underbrace{\nabla_{\va_t}\log \mu_t(\va_t|\vs)}_{\approx -\epsilonv_\theta(\va_t|\vs,t)/\sigma_t}
+    + \nabla_{\va_t}\underbrace{\gE_t(\vs, \va_t)}_{\approx f_\phi(\vs, \va_t, t)}.
+\end{equation}
+
+
+To this end, we have formulated the classic constrained policy optimization problem (\ref{Eq:rl_main}) as energy-guided sampling, with $\nabla_{\va_t}\gE_t(\vs, \va_t)$ being the desired guidance. Because such guidance is determined by the Q function, we name this approach as \textit{Q-guided policy optimization (QGPO)}. 
+QGPO requires training a total of three neural networks in order to estimate the targeted score function $\nabla_{\va_t}\log \pi_t(\va_t|\vs)$: (1) a state-conditioned diffusion model $\epsilonv_\theta(\va_t| \vs, t)$ to model the behavior policy $\mu(\va|\vs)$, for which we completely follow \citet{sfbc}; (2) an action evaluation model $Q_\psi(\vs, \va)$ to define the intermediate energy function $\gE_t$ when $t=0$ (\cref{softmax_ql}); and (3) an energy model $f_\phi(\vs, \va_t, t)$ to estimate $\gE_t(\vs, \va_t, t)$ and guide the diffusion sampling process when $t>0$ (\cref{sec:rl_method}).
+
+
+
+\subsection{In-Support Contrastive Energy Prediction}
+\label{sec:rl_method}
+Suppose we already have an action evaluation model $Q_\psi(\vs, \va)$ to estimate the Q-function $Q^{\pi}(\vs, \va)$. According to \cref{thrm:infoNCE_energy}, $f_\phi(\vs, \va_t, t)$ can be trained via our proposed CEP. Rewriting \eqref{Eq:infoNCE_energy} to condition all distributions on state $\vs$, the problem for learning $f_\phi$ becomes:
+\begin{equation}
+\label{Eq:rl_contrastive}
+\begin{split}
+    &\min_\phi \E_{p(t)}\E_{\mu(\vs)}\E_{\prod_{i=1}^K \mu(\va^{(i)}|\vs)p(\epsilonv^{(i)})}\Bigg[\\
+    &- \sum_{i=1}^K
+    \frac{e^{\beta Q_\psi(\vs, \va^{(i)})}}{\sum_{j=1}^K e^{\beta Q_\psi(\vs, \va^{(j)})}}
+    \log \frac{e^{f_\phi(\vs, \va_t^{(i)}, t)}}{\sum_{j=1}^K e^{f_\phi(\vs, \va_t^{(j)}, t)}}
+\Bigg],
+\end{split}
+\end{equation}
+where $t \sim \mathcal{U}(0,T)$, $\va_t = \alpha_t\va+\sigma_t\bm{\epsilon}$ and $\bm{\epsilon}\sim \mathcal{N}(0,\bm{I})$.
+
+
+
+
+One difficulty in solving the above problem is that we have no access to the true distribution $\mu(\va|\vs)$ for a specified $\vs$. Although we can sample data from the joint distribution $\mu(\vs, \va)$ or the marginal distribution $\mu(\vs)$ given the offline dataset $\mathcal{D}^\mu$, such data samples cannot be directly used to estimate the objective in problem (\ref{Eq:rl_contrastive}). This is because we require $K>1$ independent action samples from $\mu(\va|\vs)$ for a single $\vs$ for contrastive learning, whereas we only have one such action in $\mathcal{D}^\mu$ given that $\vs$ is a continuous variable.
+
+To address this issue, we propose to pre-generate a support action set $\mathcal{D}^{\mu_\theta}$ using the already learned behavior model $\mu_\theta(\va_t|\vs,t)$. Concretely, for each state $\vs$ in the behavior dataset $\mathcal{D}^{\mu}$, we sample $K$ support actions $\{\hat \va^{(i)}\}_K$ from $\mu_\theta(\cdot|\vs)$ and store these actions in pair with the state $\vs$ in $\mathcal{D}^{\mu_\theta}$. We then estimate the objective in (\ref{Eq:rl_contrastive}) with $\mathcal{D}^{\mu_\theta}$:
+\begin{equation}
+\label{Eq:rl_loss}
+    \min_\phi \E_{t,\vs,\epsilonv} - \sum_{i=1}^K
+    \frac{e^{\beta Q_\psi(\vs, \hat \va^{(i)})}}{\sum_{j=1}^K e^{\beta Q_\psi(\vs, \hat \va^{(j)})}}
+    \log \frac{e^{f_\phi(\vs, \hat \va_t^{(i)}, t)}}{\sum_{j=1}^K e^{f_\phi(\vs, \hat \va_t^{(j)}, t)}}
+\end{equation}
+where $\hat \va^{(i)}$, $\hat \va^{(j)}$ are support actions for $\mathcal{D}^{\mu_\theta}(\vs)$. Since problem (\ref{Eq:rl_loss}) is optimized in a support action set instead of the true dataset, we refer to it as in-support CEP.
+
+\subsection{In-support Softmax Q-Learning}
+\label{softmax_ql}
+We now discuss in detail how the action evaluation model $Q_\psi \approx Q^{\pi}$ could be trained. Ideally, we can use a typical Bellman-style bootstrapping method to calculate the mean square error (MSE) training target of $Q_\psi$ \cite{dql, arq}:
+\begin{equation}
+    \label{Eq:one_step_bellman}
+    \mathcal{T}^\pi Q_\psi(\vs, \va) = r(\vs, \va) + \gamma\mathbb{E}_{\vs' \sim P(\cdot|\vs,\va), \va' \sim \pi(\cdot|\vs')} Q_\psi(\vs', \va').
+\end{equation}
+However, calculating $\mathcal{T}^\pi Q_\psi(\vs, \va)$ could in practice be time-consuming, because it requires sampling from a diffusion model $\pi$ during training. We thus leverage the generated support action set $\mathcal{D}^{\mu_\theta}$ to avoid repeated sampling from a diffusion model. Specifically, we estimate $\mathcal{T}^\pi Q_\psi(\vs, \va)$ via importance sampling:
+\begin{equation}
+    \label{Eq:one_step_bellman_softmax}
+    \mathcal{T}^\pi Q_\psi(\vs, \va) \approx r(\vs, \va) + \gamma \frac{\sum_{\hat\va'}e^{\beta_Q Q_\psi(\vs',\hat\va')}Q_\psi(\vs',\hat\va')}{\sum_{\hat\va'} e^{\beta_Q Q_\psi(\vs',\hat\va')}}.
+\end{equation}
+
+
+
+
+\begin{table*}[t]
+    \begin{center}
+    \begin{small}
+    \resizebox{0.75\textwidth}{!}{%
+    \begin{tabular}{ccccccccc}
+    \toprule
+    Conditional &  Resolution & Diffusion Steps & FID   & sFID    & Precision & Recall  \\
+    \midrule
+    \cmark      & 128$\times$128 & 250  & 3.17 / 2.97  &  5.17 / 5.09   & 0.78 / 0.78 & 0.59 / 0.59 \\
+    \cmark      & 128$\times$128 & 25  &  6.15 / 5.98  &  6.97 / 7.04  &  0.79 / 0.78 & 0.51 / 0.51 \\
+    \hline
+    \cmark      & 256$\times$256 &  250 &  4.74 / 4.59  &  5.23 / 5.25  & 0.82 / 0.82      & 0.52 / 0.52 \Tstrut \\
+    \cmark      & 256$\times$256 &  25 & 5.58 / 5.44 &	5.25 / 5.32  &  0.82 / 0.81      & 0.48 / 0.49 \Bstrut \\
+    \hline
+    \xmark      & 256$\times$256 &  250 & 32.53 / 33.03 & 7.23 / 6.99  & 0.56 / 0.56      &  0.65 / 0.65 \Tstrut \\
+    \bottomrule
+    \end{tabular}%
+    }
+    \end{small}
+    \end{center}
+    \vspace{-0.1in}
+    \caption{Effect of CEP guidance (left) on image sample quality compared with classifier guidance (right).}
+    \vspace{-0.15in}
+    \label{tab:guide2}
+\end{table*}
+
+\subsection{Results}
+\label{Sec:rl_result}
+We compare the performance of QGPO with several related works in multiple D4RL \citep{d4rl} tasks in \cref{tbl:rl_results}. Among them, \texttt{MuJoCo locomotion} tasks are popular benchmarks in offline RL and mainly aim to drive different robots moving forward as fast as possible. The dataset might contain a mixture of expert-level and medium-level policies' decision data (Medium-Expert), decision data generated by a single medium-level policy (Medium), and diverse decision data generated by a large set of medium-level policies (Medium-Replay). \texttt{Antmaze} tasks are typically considered to be hard tasks for RL-based methods. They aim to navigate an ant robot in several prespecified mazes (Umaze, Medium, Large). The learned policy directly outputs an eight-dimensional motor torque to control the motor motion of the ant robot at each degree of freedom. As a result, Antmaze tasks require policies to perform both low-level motion control and high-level navigation.
+
+From \cref{tbl:rl_results}, we can see that in most tasks, our method outperforms referenced baselines, especially in difficult tasks such as Antmaze-Large. Baselines include traditional state-of-the-art algorithms like CQL \citep{cql}, BCQ \citep{bcq}, and IQL \citep{iql}, which adopt Gaussian-like policies. We also include recent advances in offline RL that adopt diffusion-based policies. Diffusers \cite{diffuser} considers using an energy guidance method that ensembles the MSE-based method as described in \eqref{Eq:MSE_qt_objective}. Decision Diffuser (DD, \citet{dd}), on the other hand, explores using the classifier-free guidance \citep{ho2021classifier}. Diffusion-QL (D-QL, \citet{dql}) tracks the gradients of the actions sampled from the behavior diffusion policy to guide generated actions to high Q-value area. SfBC \citep{sfbc} simply resamples actions from multiple behavior action candidates using the predicted Q-value as sampling weights. Note that such a resampling trick is also shared by Diffusion-QL. We also study a variant of Diffusion-QL (D-QL@1) where the resampling trick is removed to better reflect the quality of decisions generated by the diffusion policy.
+
+

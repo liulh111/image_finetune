@@ -1,0 +1,69 @@
+\section{Background}
+We first present preliminary knowledge of diffusion models as well as offline RL that serves as an important motivation and application of sampling from distribution (\ref{Eq:target_distribution_intro}). 
+\subsection{Diffusion (Probabilistic) Models}
+Diffusion (probabilistic) models~\citep{sohl2015deep,ho2020denoising,song2020score} are powerful generative models. Given a dataset $\{\x_0^{(i)}\}_{i=1}^N$ with $N$ samples of $D$-dimensional random variable $\x_0$ from an unknown data distribution $q_0(\x_0)$, diffusion models gradually add Gaussian noise from $\x_0$ at time $0$ to $\x_T$ at time $T > 0$. The transition distribution $q_{t0}(\x_t|\x_0)$ satisfies
+\begin{equation}
+\label{Eq:forward_diffusion}
+    q_{t0}(\x_t|\x_0) = \gN(\x_t | \alpha_t\x_0, \sigma_t^2\mI),
+\end{equation}
+where $\alpha_t,\sigma_t > 0$. Denote $q_t(\x_t)$ as the marginal distribution of $\x_t$ at time $t$. The transition distribution at time $T$ satisfies $q_{T}(\x_T|\x_0)\approx q_T(\x_T) \approx \gN(\x_T | 0, \tilde\sigma^2\mI)$ for some $\tilde\sigma > 0$ and is independent of $\x_0$. Thus, starting from $\x_T \sim \gN(\x_T | 0, \tilde\sigma^2\mI)$, diffusion models aim to recover the original data $\x_0$ by solving a reverse process from $T$ to $0$. The reverse process can alternatively be the \textit{diffusion ODE}~\citep{song2020score}:
+\begin{equation}
+\label{Eq:diffusion_ode}
+    \frac{\dm \x_t}{\dm t}=f(t)\x_t-\frac{1}{2}g^2(t)\nabla_{\x_t}\log q_t(\x_t),
+\end{equation}
+where $f(t)=\frac{\dm\log \alpha_t}{\dm t},g^2(t)=\frac{\dm \sigma_t^2}{\dm t}-2\frac{\dm\log \alpha_t}{\dm t}\sigma_t^2$~\citep{kingma2021variational} and the only unknown term is the \textit{score function} $\nabla_{\x_t}\log q_t(\cdot)$ of the distribution $q_t$ at each time $t$. Thus, diffusion models train a neural network $\epsilonv_\theta(\x_t,t)$ parameterized by $\theta$ to estimate the scaled score function: $-\sigma_t\nabla_{\x_t}\log q_t(\x_t)$, and the training objective is~\citep{ho2020denoising,song2020score}
+\begin{equation}
+\begin{aligned}
+\label{Eq:diffusion_loss}
+    \phantom{{}={}}&\min_\theta \E_{t,\x_t}\left[
+        \omega(t)\|\epsilonv_\theta(\x_t,t) + \sigma_t\nabla_{\x_t}\log q_t(\x_t) \|_2^2
+    \right]\\
+    \Leftrightarrow &\min_\theta \E_{t,\x_0,\epsilonv}\left[
+        \omega(t)\|\epsilonv_\theta(\x_t,t) - \epsilonv\|_2^2
+    \right]
+\end{aligned}
+\end{equation}
+where $\x_0\sim q_0(\x_0)$, $\epsilonv\sim\gN(\bm{0},\mI)$, $t\sim\gU([0,T])$, $\x_t=\alpha_t \x_0 + \sigma_t \epsilonv$, and $\omega(t)$ is a weighting function and usually set to $\omega(t)\equiv 1$~\citep{ho2020denoising}.
+Thus, after training a diffusion model, we usually have $\epsilonv_\theta(\x_t,t)\approx -\sigma_t\nabla_{\x_t}\log q_t(\x_t)$. By replacing the score function with $\epsilonv_\theta$, we can fastly sample $\x_0$ by solving the corresponding diffusion ODEs with some dedicated solvers~\citep{song2020denoising,lu2022dpm}.
+
+
+
+
+
+ 
+
+
+\subsection{Constrained Policy Optimization in Offline Reinforcement Learning}
+
+Consider a Markov Decision Process (MDP), described by the tuple $\langle\mathcal{S},\mathcal{A}, P,r,\gamma\rangle$. $\mathcal{S}$ is the state space and $\mathcal{A}$ is the action space. $P(\vs'|\vs,\va)$ and $r(\vs, \va)$ are respectively the transition and reward functions. $\gamma \in (0,1]$ is a constant discount factor. In offline RL, a static dataset $\mathcal{D}^\mu$ containing some interacting history $\{\vs, \va, r, \vs'\}$ between a behavior agent $\mu(\va|\vs)$ and the environment is given. The goal is to maximize the expected accumulated rewards of a model policy $\pi_\theta(\va|\vs)$ in the above MDP by solely utilizing the knowledge learned from the dataset.
+
+Previous work~\citep{rwr, awr} formulate offline RL as constrained policy optimization:
+\begin{equation}
+\label{Eq:rl_main}
+    \max_{\pi} \mathbb{E}_{\vs \sim \mathcal{D}^\mu}\big[ \mathbb{E}_{\va \sim \pi(\cdot|\vs)} Q_\psi(\vs, \va)
+     - \frac{1}{\beta} \KL \left(\pi(\cdot |\vs) || \mu(\cdot |\vs) \right)\big],
+\end{equation}
+where $Q_\psi$ is an action evaluation model which indicates the quality of decision $(\vs, \va)$ 
+by estimating the Q-function $Q^\pi(\vs, \va) := \mathbb{E}_{\vs_1=\vs, \va_1=\va; \pi} [\sum_{n=1}^\infty \gamma^n r(\vs_n, \va_n)]$ of the current policy $\pi$.  
+$\beta$ is an inverse temperature coefficient. The first term in \eqref{Eq:rl_main} intends to perform policy optimization, while the second term stands for policy constraint. 
+
+It is shown that the optimal policy $\pi^*$ in (\ref{Eq:rl_main}) satisfies:
+\begin{equation}
+\label{Eq:pi_optimal}
+    \pi^*(\va|\vs) \propto \ \mu(\va|\vs) \ e^{\beta Q_\psi(\vs, \va)},
+\end{equation}
+which falls into the general family of distributions (\ref{Eq:target_distribution_intro}). Therefore, sampling from the optimal policy $\pi^*$ can be implemented by energy-guided sampling with a pretrained diffusion behavior model $\mu_g(\va|\vs)\approx \mu(\va|\vs)$, which motivates us to propose an exact energy-guided sampling method.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

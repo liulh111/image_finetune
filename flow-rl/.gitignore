@@ -1,0 +1,17 @@
+**/*.ipynb
+**/log
+**/.vscode
+**/__pycache__
+**/*.so
+*.egg-info
+# scripts/
+out/
+wandb
+tests/
+shells/
+ckpts
+log_bkp/
+logs/
+MUJOCO_LOG.TXT
+.*venv*/
+.omc/
