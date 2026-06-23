@@ -17,7 +17,7 @@ from .common import (
     unwrap_model,
 )
 from .data import make_image_batch_iterator, save_checkpoint, save_label_info
-from .models import ColorScalarNet
+from .models import ColorScalarNet, OpenAIColorScalarNet
 from .rewards import color_index, color_reward
 from .sampling import (
     add_training_sample_args,
@@ -27,8 +27,10 @@ from .sampling import (
 
 
 def contrastive_color_loss(pred, reward, eta):
+    # The energy model predicts the scaled log weight Q_t / eta. CEP's target
+    # label is therefore the self-normalized exp(Q / eta) weight.
     target = F.softmax(reward / eta, dim=0).detach()
-    log_prob = F.log_softmax(pred / eta, dim=0)
+    log_prob = F.log_softmax(pred, dim=0)
     return -(target * log_prob).sum()
 
 
@@ -37,15 +39,22 @@ def main():
         "Train CEP color energy guidance.", require_model_path=False
     )
     parser.add_argument("--out_dir", default="runs/cep_color")
-    parser.add_argument("--steps", type=int, default=20000)
-    parser.add_argument("--batch_size", type=int, default=2, help="Per-GPU batch size.")
-    parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--eta", type=float, default=0.15)
+    parser.add_argument("--steps", type=int, default=500000)
+    parser.add_argument("--batch_size", type=int, default=32, help="Per-GPU batch size.")
+    parser.add_argument("--lr", type=float, default=3e-4)
+    parser.add_argument("--weight_decay", type=float, default=0.0)
+    parser.add_argument("--eta", type=float, default=0.02)
+    parser.add_argument(
+        "--energy_arch",
+        choices=("openai_classifier", "small"),
+        default="openai_classifier",
+        help="openai_classifier matches the CEP image-guidance architecture.",
+    )
     parser.add_argument("--base_channels", type=int, default=64)
     parser.add_argument("--same_t_batch", action="store_true")
     parser.add_argument("--data_dir", required=True)
     parser.add_argument("--num_workers", type=int, default=2)
-    parser.add_argument("--save_every", type=int, default=1000)
+    parser.add_argument("--save_every", type=int, default=10000)
     parser.add_argument("--log_every", type=int, default=50)
     add_training_sample_args(parser)
     args = parser.parse_args()
@@ -74,11 +83,14 @@ def main():
         seed=args.seed,
         num_workers=args.num_workers,
     )
-    energy = ColorScalarNet(
-        base_channels=args.base_channels,
-        color_count=3,
-        class_cond=args.class_cond,
-    ).to(device)
+    if args.energy_arch == "openai_classifier":
+        energy = OpenAIColorScalarNet().to(device)
+    else:
+        energy = ColorScalarNet(
+            base_channels=args.base_channels,
+            color_count=3,
+            class_cond=args.class_cond,
+        ).to(device)
     if ctx.distributed:
         ddp_kwargs = (
             {"device_ids": [ctx.local_rank], "output_device": ctx.local_rank}
@@ -86,7 +98,9 @@ def main():
             else {}
         )
         energy = DDP(energy, **ddp_kwargs)
-    opt = torch.optim.AdamW(energy.parameters(), lr=args.lr, weight_decay=1e-4)
+    opt = torch.optim.AdamW(
+        energy.parameters(), lr=args.lr, weight_decay=args.weight_decay
+    )
 
     out_dir = Path(args.out_dir)
     if ctx.is_main:

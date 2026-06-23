@@ -63,6 +63,52 @@ def normalization(channels):
     return GroupNorm32(32, channels)
 
 
+class QKVAttention(nn.Module):
+    def __init__(self, n_heads):
+        super().__init__()
+        self.n_heads = n_heads
+
+    def forward(self, qkv):
+        bs, width, length = qkv.shape
+        if width % (3 * self.n_heads) != 0:
+            raise ValueError("qkv width must be divisible by 3 * n_heads")
+        ch = width // (3 * self.n_heads)
+        q, k, v = qkv.chunk(3, dim=1)
+        scale = 1 / math.sqrt(math.sqrt(ch))
+        weight = torch.einsum(
+            "bct,bcs->bts",
+            (q * scale).reshape(bs * self.n_heads, ch, length),
+            (k * scale).reshape(bs * self.n_heads, ch, length),
+        )
+        weight = torch.softmax(weight.float(), dim=-1).type(weight.dtype)
+        out = torch.einsum(
+            "bts,bcs->bct", weight, v.reshape(bs * self.n_heads, ch, length)
+        )
+        return out.reshape(bs, -1, length)
+
+
+class AttentionPool2d(nn.Module):
+    def __init__(self, spatial_dim, embed_dim, num_head_channels, output_dim=None):
+        super().__init__()
+        self.positional_embedding = nn.Parameter(
+            torch.randn(embed_dim, spatial_dim**2 + 1) / embed_dim**0.5
+        )
+        self.qkv_proj = conv_nd(1, embed_dim, 3 * embed_dim, 1)
+        self.c_proj = conv_nd(1, embed_dim, output_dim or embed_dim, 1)
+        self.num_heads = embed_dim // num_head_channels
+        self.attention = QKVAttention(self.num_heads)
+
+    def forward(self, x):
+        b, c, *_spatial = x.shape
+        x = x.reshape(b, c, -1)
+        x = torch.cat([x.mean(dim=-1, keepdim=True), x], dim=-1)
+        x = x + self.positional_embedding[None].to(x.dtype)
+        x = self.qkv_proj(x)
+        x = self.attention(x)
+        x = self.c_proj(x)
+        return x[:, :, 0]
+
+
 class TimestepBlock(nn.Module):
     @abstractmethod
     def forward(self, x, emb):
@@ -429,6 +475,160 @@ class UNetModel(nn.Module):
         return self.out(h)
 
 
+class EncoderUNetModel(nn.Module):
+    """OpenAI guided-diffusion classifier backbone used for CEP image guidance."""
+
+    def __init__(
+        self,
+        image_size,
+        in_channels,
+        model_channels,
+        out_channels,
+        num_res_blocks,
+        attention_resolutions,
+        dropout=0,
+        channel_mult=(1, 2, 4, 8),
+        conv_resample=True,
+        dims=2,
+        num_heads=1,
+        num_head_channels=-1,
+        num_heads_upsample=-1,
+        use_scale_shift_norm=False,
+        resblock_updown=False,
+        pool="adaptive",
+    ):
+        super().__init__()
+        if num_heads_upsample == -1:
+            num_heads_upsample = num_heads
+        self.model_channels = model_channels
+        self.out_channels = out_channels
+        self.pool = pool
+
+        time_embed_dim = model_channels * 4
+        self.time_embed = nn.Sequential(
+            nn.Linear(model_channels, time_embed_dim),
+            SiLU(),
+            nn.Linear(time_embed_dim, time_embed_dim),
+        )
+
+        ch = int(channel_mult[0] * model_channels)
+        self.input_blocks = nn.ModuleList(
+            [TimestepEmbedSequential(conv_nd(dims, in_channels, ch, 3, padding=1))]
+        )
+        self._feature_size = ch
+        ds = 1
+        for level, mult in enumerate(channel_mult):
+            for _ in range(num_res_blocks):
+                layers = [
+                    ResBlock(
+                        ch,
+                        time_embed_dim,
+                        dropout,
+                        out_channels=int(mult * model_channels),
+                        use_scale_shift_norm=use_scale_shift_norm,
+                        dims=dims,
+                    )
+                ]
+                ch = int(mult * model_channels)
+                if ds in attention_resolutions:
+                    layers.append(
+                        AttentionBlock(
+                            ch,
+                            num_heads=num_heads,
+                            num_head_channels=num_head_channels,
+                        )
+                    )
+                self.input_blocks.append(TimestepEmbedSequential(*layers))
+                self._feature_size += ch
+            if level != len(channel_mult) - 1:
+                out_ch = ch
+                self.input_blocks.append(
+                    TimestepEmbedSequential(
+                        ResBlock(
+                            ch,
+                            time_embed_dim,
+                            dropout,
+                            out_channels=out_ch,
+                            use_scale_shift_norm=use_scale_shift_norm,
+                            dims=dims,
+                            down=True,
+                        )
+                        if resblock_updown
+                        else Downsample(
+                            ch, conv_resample, dims=dims, out_channels=out_ch
+                        )
+                    )
+                )
+                ds *= 2
+                self._feature_size += ch
+
+        self.middle_block = TimestepEmbedSequential(
+            ResBlock(
+                ch,
+                time_embed_dim,
+                dropout,
+                use_scale_shift_norm=use_scale_shift_norm,
+                dims=dims,
+            ),
+            AttentionBlock(ch, num_heads=num_heads, num_head_channels=num_head_channels),
+            ResBlock(
+                ch,
+                time_embed_dim,
+                dropout,
+                use_scale_shift_norm=use_scale_shift_norm,
+                dims=dims,
+            ),
+        )
+        self._feature_size += ch
+
+        if pool == "adaptive":
+            self.out = nn.Sequential(
+                normalization(ch),
+                SiLU(),
+                nn.AdaptiveAvgPool2d((1, 1)),
+                zero_module(conv_nd(dims, ch, out_channels, 1)),
+                nn.Flatten(),
+            )
+        elif pool == "attention":
+            if num_head_channels == -1:
+                raise ValueError("attention pooling requires num_head_channels")
+            self.out = nn.Sequential(
+                normalization(ch),
+                SiLU(),
+                AttentionPool2d(image_size // ds, ch, num_head_channels, out_channels),
+            )
+        elif pool == "spatial":
+            self.out = nn.Sequential(
+                nn.Linear(self._feature_size, 2048),
+                nn.ReLU(),
+                nn.Linear(2048, self.out_channels),
+            )
+        elif pool == "spatial_v2":
+            self.out = nn.Sequential(
+                nn.Linear(self._feature_size, 2048),
+                normalization(2048),
+                SiLU(),
+                nn.Linear(2048, self.out_channels),
+            )
+        else:
+            raise ValueError(f"unexpected pooling mode: {pool}")
+
+    def forward(self, x, timesteps):
+        emb = self.time_embed(timestep_embedding(timesteps, self.model_channels))
+        results = []
+        h = x
+        for module in self.input_blocks:
+            h = module(h, emb)
+            if self.pool.startswith("spatial"):
+                results.append(h.type(x.dtype).mean(dim=(2, 3)))
+        h = self.middle_block(h, emb)
+        if self.pool.startswith("spatial"):
+            results.append(h.type(x.dtype).mean(dim=(2, 3)))
+            h = torch.cat(results, dim=-1)
+            return self.out(h)
+        return self.out(h.type(x.dtype))
+
+
 def create_openai_256_unet(class_cond=False):
     return UNetModel(
         image_size=256,
@@ -443,4 +643,21 @@ def create_openai_256_unet(class_cond=False):
         num_head_channels=64,
         use_scale_shift_norm=True,
         resblock_updown=True,
+    )
+
+
+def create_openai_256_classifier(out_channels=1):
+    return EncoderUNetModel(
+        image_size=256,
+        in_channels=3,
+        model_channels=128,
+        out_channels=out_channels,
+        num_res_blocks=2,
+        attention_resolutions=(8, 16, 32),
+        dropout=0.0,
+        channel_mult=(1, 1, 2, 2, 4, 4),
+        num_head_channels=64,
+        use_scale_shift_norm=True,
+        resblock_updown=True,
+        pool="attention",
     )

@@ -4,9 +4,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 GPUS="${GPUS:-8}"
-BATCH_SIZE="${BATCH_SIZE:-2}"
-STEPS="${STEPS:-20000}"
-ETA="${ETA:-0.15}"
+BATCH_SIZE="${BATCH_SIZE:-32}"
+STEPS="${STEPS:-500000}"
+ETA="${ETA:-0.02}"
 DATA_DIR="${DATA_DIR:-Data/train}"
 COLOR="${COLOR:-red}"
 SAMPLE_EVERY="${SAMPLE_EVERY:-0}"
@@ -14,7 +14,7 @@ SAMPLE_K="${SAMPLE_K:-4}"
 SAMPLE_METHOD="${SAMPLE_METHOD:-ddpm}"
 SAMPLE_STEPS="${SAMPLE_STEPS:-250}"
 SAMPLE_DDIM_ETA="${SAMPLE_DDIM_ETA:-0.0}"
-SAMPLE_GUIDANCE_LEVELS="${SAMPLE_GUIDANCE_LEVELS:-0,1,2,3,10}"
+SAMPLE_GUIDANCE_LEVELS="${SAMPLE_GUIDANCE_LEVELS:-0,0.25,0.5,1,1.5,2,2.5,3,5,10}"
 
 torchrun --standalone --nproc_per_node="$GPUS" \
   -m color_finetune.train_cep \

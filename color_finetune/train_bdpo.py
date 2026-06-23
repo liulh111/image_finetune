@@ -40,11 +40,21 @@ def average_previous_value(
 ):
     if samples < 1:
         raise ValueError("--reverse_samples must be >= 1")
-    values = []
-    for _ in range(samples):
+    if samples == 1:
         x_prev = reverse_step_sample(diffusion, mean, log_variance, t)
-        values.append(previous_value(value_net, x_prev, t, color_y, y))
-    return torch.stack(values, dim=0).mean(dim=0)
+        return previous_value(value_net, x_prev, t, color_y, y)
+
+    bsz = mean.shape[0]
+    noise = torch.randn((samples, *mean.shape), device=mean.device, dtype=mean.dtype)
+    nonzero = (t != 0).float().view(1, bsz, *([1] * (mean.ndim - 1)))
+    std = torch.exp(0.5 * log_variance).unsqueeze(0)
+    x_prev = mean.unsqueeze(0) + nonzero * std * noise
+    flat_x_prev = x_prev.reshape(samples * bsz, *mean.shape[1:])
+    flat_t = t.repeat(samples)
+    flat_color_y = color_y.repeat(samples)
+    flat_y = None if y is None else y.repeat(samples)
+    values = previous_value(value_net, flat_x_prev, flat_t, flat_color_y, flat_y)
+    return values.view(samples, bsz).mean(dim=0)
 
 
 def actor_and_behavior_stats(diffusion, actor, behavior, x_t, t, y, color_y):
@@ -72,24 +82,25 @@ def trainable_actor_state(actor):
 def main():
     parser = create_arg_parser("Train BDPO residual actor for color fine-tuning.")
     parser.add_argument("--out_dir", default="runs/bdpo_color")
-    parser.add_argument("--steps", type=int, default=20000)
+    parser.add_argument("--steps", type=int, default=500000)
     parser.add_argument("--batch_size", type=int, default=1, help="Per-GPU batch size.")
     parser.add_argument("--actor_lr", type=float, default=5e-5)
     parser.add_argument("--value_lr", type=float, default=1e-4)
-    parser.add_argument("--eta", type=float, default=0.15)
-    parser.add_argument("--kl_reduce", choices=("mean", "sum"), default="mean")
+    parser.add_argument("--weight_decay", type=float, default=0.0)
+    parser.add_argument("--eta", type=float, default=0.02)
+    parser.add_argument("--kl_reduce", choices=("mean", "sum"), default="sum")
     parser.add_argument("--value_base_channels", type=int, default=64)
     parser.add_argument("--adapter_base_channels", type=int, default=48)
     parser.add_argument("--actor_update_interval", type=int, default=1)
     parser.add_argument(
         "--reverse_samples",
         type=int,
-        default=1,
+        default=10,
         help="Number of x_{t-1} reverse samples used to average the value target.",
     )
     parser.add_argument("--data_dir", required=True)
     parser.add_argument("--num_workers", type=int, default=2)
-    parser.add_argument("--save_every", type=int, default=1000)
+    parser.add_argument("--save_every", type=int, default=10000)
     parser.add_argument("--log_every", type=int, default=20)
     add_training_sample_args(parser)
     args = parser.parse_args()
@@ -132,9 +143,13 @@ def main():
         actor = DDP(actor, **ddp_kwargs)
         value = DDP(value, **ddp_kwargs)
     actor_opt = torch.optim.AdamW(
-        [p for p in actor.parameters() if p.requires_grad], lr=args.actor_lr, weight_decay=1e-4
+        [p for p in actor.parameters() if p.requires_grad],
+        lr=args.actor_lr,
+        weight_decay=args.weight_decay,
     )
-    value_opt = torch.optim.AdamW(value.parameters(), lr=args.value_lr, weight_decay=1e-4)
+    value_opt = torch.optim.AdamW(
+        value.parameters(), lr=args.value_lr, weight_decay=args.weight_decay
+    )
 
     out_dir = Path(args.out_dir)
     if ctx.is_main:

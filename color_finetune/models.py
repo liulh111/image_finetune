@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from .guided_unet import SiLU, timestep_embedding, zero_module
+from .guided_unet import SiLU, create_openai_256_classifier, timestep_embedding, zero_module
 
 
 class SmallResBlock(nn.Module):
@@ -115,6 +115,18 @@ class ColorScalarNet(nn.Module):
     def forward(self, x, t, color_y, y=None):
         h, _ = self.backbone.forward_features(x, t, color_y, y)
         return self.head(h).squeeze(-1)
+
+
+class OpenAIColorScalarNet(nn.Module):
+    """OpenAI classifier-style scalar energy model for one target color."""
+
+    def __init__(self):
+        super().__init__()
+        self.net = create_openai_256_classifier(out_channels=1)
+
+    def forward(self, x, t, color_y=None, y=None):
+        del color_y, y
+        return self.net(x, t).squeeze(-1)
 
 
 class ResidualEpsAdapter(nn.Module):

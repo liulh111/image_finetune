@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 
 K="${K:-4}"
 N="${N:-4}"
-SCALES="${SCALES:-0,1,2,3,10}"
+SCALES="${SCALES:-0,0.25,0.5,1,1.5,2,2.5,3,5,10}"
 METHOD="${METHOD:-ddpm}"
 STEPS="${STEPS:-250}"
 DDIM_ETA="${DDIM_ETA:-0.0}"

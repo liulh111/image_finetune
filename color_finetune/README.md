@@ -59,8 +59,9 @@ It is removed. Training reads ImageNet-style image files directly from
 `--data_dir`, matching the CEP image experiment setup.
 
 `amp` meant automatic mixed precision. It is removed from the user interface to
-avoid another execution mode. The code runs in regular precision; with 8 A100s
-the default per-GPU batch sizes are conservative.
+avoid another execution mode. The code runs in regular precision; CEP defaults
+to the paper's 8-GPU global batch size, while BDPO keeps a smaller per-GPU
+batch because it evaluates actor, behavior, and value networks in each update.
 
 ## Objective
 
@@ -78,7 +79,8 @@ max E[Q(x)] - eta * KL(pi_theta || pi_behavior)
 
 `Q(x)` is the differentiable hue reward at `t=0`, so BDPO does not learn a
 separate `t=0` value network. `V_0(x)` is evaluated directly by the analytic
-reward.
+reward. CEP uses `beta=50` in the paper, so this code sets `eta=1/beta=0.02`
+by default.
 
 ## 8-GPU Training
 
@@ -117,9 +119,11 @@ torchrun --standalone --nproc_per_node=8 \
   --model_path checkpoints/openai/256x256_diffusion_uncond.pt \
   --data_dir Data/train \
   --color red \
-  --eta 0.15 \
-  --batch_size 2 \
-  --steps 20000 \
+  --eta 0.02 \
+  --batch_size 32 \
+  --steps 500000 \
+  --weight_decay 0 \
+  --energy_arch openai_classifier \
   --sample_every 1000 \
   --sample_k 4 \
   --sample_method ddpm \
@@ -130,7 +134,7 @@ torchrun --standalone --nproc_per_node=8 \
 ### BDPO, Unconditional Prior, One Color
 
 ```bash
-COLOR=red REVERSE_SAMPLES=1
+COLOR=red REVERSE_SAMPLES=10
 scripts/train_bdpo_color_uncond.sh
 ```
 
@@ -142,10 +146,11 @@ torchrun --standalone --nproc_per_node=8 \
   --model_path checkpoints/openai/256x256_diffusion_uncond.pt \
   --data_dir Data/train \
   --color red \
-  --eta 0.15 \
-  --reverse_samples 1 \
+  --eta 0.02 \
+  --reverse_samples 10 \
   --batch_size 1 \
-  --steps 20000 \
+  --steps 500000 \
+  --weight_decay 0 \
   --sample_every 1000 \
   --sample_k 4 \
   --sample_method ddpm \
@@ -168,9 +173,11 @@ torchrun --standalone --nproc_per_node=8 \
   --data_dir Data/train \
   --class_cond \
   --color red \
-  --eta 0.15 \
-  --batch_size 2 \
-  --steps 20000 \
+  --eta 0.02 \
+  --batch_size 32 \
+  --steps 500000 \
+  --weight_decay 0 \
+  --energy_arch openai_classifier \
   --out_dir runs/cep_cond_red
 ```
 
@@ -194,8 +201,8 @@ The CEP paper follows OpenAI guided-diffusion for image sampling. For ImageNet
   --sample_steps 250`.
 - DDIM examples use `timestep_respacing ddim25 --use_ddim True`, equivalent
   here to `--sample_method ddim --sample_steps 25 --sample_ddim_eta 0`.
-- CEP sweeps guidance scales such as `0,0.25,0.5,1,1.5,2,2.5,3,5,10`; our
-  default quick grid uses `0,1,2,3,10`.
+- CEP sweeps guidance scales `0,0.25,0.5,1,1.5,2,2.5,3,5,10`, which is the
+  default grid here.
 - For the color experiment, CEP uses one trained energy guidance model per
   target color and changes the sampler guidance scale `s` at inference time.
 
@@ -203,17 +210,20 @@ The CEP paper follows OpenAI guided-diffusion for image sampling. For ImageNet
 
 Set `--sample_every M` to periodically save a full guidance grid during
 training. The default sampler is CEP-style `ddpm/250`. The default levels are
-`s=0,1,2,3,10`, so the saved image has `K` rows and 5 columns:
+`s=0,0.25,0.5,1,1.5,2,2.5,3,5,10`, so the saved image has `K` rows and 10
+columns:
 
 ```text
-row i: same x_T and label, columns are s=0,1,2,3,10
+row i: same x_T, same reverse noise, and same label; columns sweep s
 ```
 
 For CEP, `s` is the classifier/energy guidance scale. For BDPO, `s` scales the
-trainable residual actor head: `s=0` is the behavior model and `s=1` is the
-trained actor. `ddpm/250` matches CEP's default sampler. When you want the same
-content to stay more visibly comparable across guidance levels, use
-`--sample_method ddim --sample_steps 25 --sample_ddim_eta 0`.
+actor-behavior reverse-transition residual: `s=0` is the behavior reverse
+transition and `s=1` is the trained actor reverse transition. In DDPM grids this
+is implemented as `mean_behavior + s * (mean_actor - mean_behavior)`, matching
+CEP's reverse-mean-guidance form. `ddpm/250` matches CEP's default sampler. When
+you want the same content to stay more visibly comparable across guidance
+levels, use `--sample_method ddim --sample_steps 25 --sample_ddim_eta 0`.
 
 The training scripts expose this through environment variables:
 
@@ -230,12 +240,13 @@ encoded in the filename.
 This can be run before training. It loads the OpenAI unconditional and
 conditional behavior priors, samples `K x N` images, and saves one grid per
 guidance scale. Each row uses one ImageNet class label and contains `N` samples
-from that same class. The default scales are `0,1,2,3,10`; `s=0` is exactly the
-unconditional prior, `s=1` is exactly the conditional prior, and larger values
-use classifier-free-style extrapolation from the two separate priors.
+from that same class. The default scales are
+`0,0.25,0.5,1,1.5,2,2.5,3,5,10`; `s=0` is exactly the unconditional prior,
+`s=1` is exactly the conditional prior, and larger values use
+classifier-free-style extrapolation from the two separate priors.
 
 ```bash
-K=4 N=8 SCALES=0,1,2,3,10 METHOD=ddpm STEPS=250 scripts/sample_behavior.sh
+K=4 N=8 SCALES=0,0.25,0.5,1,1.5,2,2.5,3,5,10 METHOD=ddpm STEPS=250 scripts/sample_behavior.sh
 ```
 
 Equivalent explicit command:
@@ -244,7 +255,7 @@ Equivalent explicit command:
 python -m color_finetune.sample_behavior \
   --k 4 \
   --n 8 \
-  --guidance_scales 0,1,2,3,10 \
+  --guidance_scales 0,0.25,0.5,1,1.5,2,2.5,3,5,10 \
   --sample_method ddpm \
   --steps 250 \
   --out_dir runs/behavior_samples
@@ -253,4 +264,6 @@ python -m color_finetune.sample_behavior \
 Output filenames include the guidance scale, `K`, `N`, sample method, step
 count, and DDIM eta. No JSON sidecar is written.
 
-Sampling trained CEP/BDPO checkpoints is intentionally not implemented yet.
+Standalone sampling from trained CEP/BDPO checkpoints is intentionally not
+implemented yet; training-time evaluation grids are written when
+`--sample_every` is positive.
