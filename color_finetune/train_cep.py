@@ -17,7 +17,7 @@ from .common import (
     unwrap_model,
 )
 from .data import make_image_batch_iterator, save_checkpoint, save_label_info
-from .models import ColorScalarNet, OpenAIColorScalarNet
+from .models import OpenAIColorScalarNet
 from .rewards import color_index, color_reward
 from .sampling import (
     add_training_sample_args,
@@ -44,13 +44,6 @@ def main():
     parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--weight_decay", type=float, default=0.0)
     parser.add_argument("--eta", type=float, default=0.02)
-    parser.add_argument(
-        "--energy_arch",
-        choices=("openai_classifier", "small"),
-        default="openai_classifier",
-        help="openai_classifier matches the CEP image-guidance architecture.",
-    )
-    parser.add_argument("--base_channels", type=int, default=64)
     parser.add_argument("--same_t_batch", action="store_true")
     parser.add_argument("--data_dir", required=True)
     parser.add_argument("--num_workers", type=int, default=2)
@@ -62,6 +55,7 @@ def main():
         raise ValueError("CEP contrastive training requires --batch_size >= 2 per GPU")
     if args.sample_every > 0 and not args.model_path:
         raise ValueError("--model_path is required when --sample_every > 0")
+    args.energy_arch = "openai_classifier"
 
     ctx = init_distributed(args.device)
     torch.manual_seed(args.seed + ctx.rank)
@@ -83,14 +77,7 @@ def main():
         seed=args.seed,
         num_workers=args.num_workers,
     )
-    if args.energy_arch == "openai_classifier":
-        energy = OpenAIColorScalarNet().to(device)
-    else:
-        energy = ColorScalarNet(
-            base_channels=args.base_channels,
-            color_count=3,
-            class_cond=args.class_cond,
-        ).to(device)
+    energy = OpenAIColorScalarNet().to(device)
     if ctx.distributed:
         ddp_kwargs = (
             {"device_ids": [ctx.local_rank], "output_device": ctx.local_rank}

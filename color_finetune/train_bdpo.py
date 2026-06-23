@@ -18,7 +18,7 @@ from .common import (
 )
 from .data import make_image_batch_iterator, save_checkpoint, save_label_info
 from .diffusion import diagonal_gaussian_kl_mean, reverse_step_sample
-from .models import ColorScalarNet, ResidualEpsAdapter
+from .models import OpenAIColorScalarNet, OpenAIResidualEpsAdapter
 from .rewards import color_index, color_reward
 from .sampling import (
     add_training_sample_args,
@@ -84,13 +84,11 @@ def main():
     parser.add_argument("--out_dir", default="runs/bdpo_color")
     parser.add_argument("--steps", type=int, default=500000)
     parser.add_argument("--batch_size", type=int, default=1, help="Per-GPU batch size.")
-    parser.add_argument("--actor_lr", type=float, default=5e-5)
-    parser.add_argument("--value_lr", type=float, default=1e-4)
+    parser.add_argument("--actor_lr", type=float, default=1e-5)
+    parser.add_argument("--value_lr", type=float, default=3e-4)
     parser.add_argument("--weight_decay", type=float, default=0.0)
     parser.add_argument("--eta", type=float, default=0.02)
     parser.add_argument("--kl_reduce", choices=("mean", "sum"), default="sum")
-    parser.add_argument("--value_base_channels", type=int, default=64)
-    parser.add_argument("--adapter_base_channels", type=int, default=48)
     parser.add_argument("--actor_update_interval", type=int, default=1)
     parser.add_argument(
         "--reverse_samples",
@@ -104,6 +102,8 @@ def main():
     parser.add_argument("--log_every", type=int, default=20)
     add_training_sample_args(parser)
     args = parser.parse_args()
+    args.actor_arch = "openai_residual_unet"
+    args.value_arch = "openai_classifier"
 
     ctx = init_distributed(args.device)
     torch.manual_seed(args.seed + ctx.rank)
@@ -123,17 +123,11 @@ def main():
         seed=args.seed,
         num_workers=args.num_workers,
     )
-    actor = ResidualEpsAdapter(
+    actor = OpenAIResidualEpsAdapter(
         behavior,
-        base_channels=args.adapter_base_channels,
-        color_count=3,
         class_cond=args.class_cond,
     ).to(device)
-    value = ColorScalarNet(
-        base_channels=args.value_base_channels,
-        color_count=3,
-        class_cond=args.class_cond,
-    ).to(device)
+    value = OpenAIColorScalarNet().to(device)
     if ctx.distributed:
         ddp_kwargs = (
             {"device_ids": [ctx.local_rank], "output_device": ctx.local_rank}

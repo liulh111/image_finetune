@@ -661,3 +661,20 @@ def create_openai_256_classifier(out_channels=1):
         resblock_updown=True,
         pool="attention",
     )
+
+
+def create_openai_256_residual_unet(out_channels=3, class_cond=False):
+    return UNetModel(
+        image_size=256,
+        in_channels=3,
+        model_channels=128,
+        out_channels=out_channels,
+        num_res_blocks=2,
+        attention_resolutions=(8, 16, 32),
+        dropout=0.0,
+        channel_mult=(1, 1, 2, 2, 4, 4),
+        num_classes=NUM_CLASSES if class_cond else None,
+        num_head_channels=64,
+        use_scale_shift_norm=True,
+        resblock_updown=True,
+    )

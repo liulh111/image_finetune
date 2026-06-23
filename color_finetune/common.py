@@ -105,6 +105,8 @@ def build_run_config(args):
         "eta": getattr(args, "eta", None),
         "weight_decay": getattr(args, "weight_decay", None),
         "energy_arch": getattr(args, "energy_arch", None),
+        "actor_arch": getattr(args, "actor_arch", None),
+        "value_arch": getattr(args, "value_arch", None),
         "kl_reduce": getattr(args, "kl_reduce", None),
         "reverse_samples": getattr(args, "reverse_samples", None),
         "sample_every": getattr(args, "sample_every", None),

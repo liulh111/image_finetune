@@ -172,7 +172,7 @@ def run_bdpo_residual_sample_loop(
     progress=False,
 ):
     if not hasattr(actor, "behavior_model"):
-        raise ValueError("BDPO residual sampling requires a ResidualEpsAdapter actor")
+        raise ValueError("BDPO residual sampling requires an OpenAIResidualEpsAdapter")
     behavior_kwargs = behavior_kwargs or {}
     actor_kwargs = actor_kwargs or {}
     x = torch.randn(*shape, device=device) if noise is None else noise.to(device)

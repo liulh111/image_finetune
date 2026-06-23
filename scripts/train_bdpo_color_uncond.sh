@@ -10,6 +10,8 @@ ETA="${ETA:-0.02}"
 DATA_DIR="${DATA_DIR:-Data/train}"
 COLOR="${COLOR:-red}"
 REVERSE_SAMPLES="${REVERSE_SAMPLES:-10}"
+ACTOR_LR="${ACTOR_LR:-1e-5}"
+VALUE_LR="${VALUE_LR:-3e-4}"
 SAMPLE_EVERY="${SAMPLE_EVERY:-0}"
 SAMPLE_K="${SAMPLE_K:-4}"
 SAMPLE_METHOD="${SAMPLE_METHOD:-ddpm}"
@@ -23,6 +25,8 @@ torchrun --standalone --nproc_per_node="$GPUS" \
   --data_dir "$DATA_DIR" \
   --color "$COLOR" \
   --eta "$ETA" \
+  --actor_lr "$ACTOR_LR" \
+  --value_lr "$VALUE_LR" \
   --reverse_samples "$REVERSE_SAMPLES" \
   --batch_size "$BATCH_SIZE" \
   --steps "$STEPS" \

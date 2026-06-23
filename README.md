@@ -182,12 +182,18 @@ no target networks
 no environment-level TD critic
 ```
 
-The behavior model is frozen. The actor is a residual epsilon adapter initialized
-at zero, so the unscaled actor is initially exactly the behavior prior and the
-trained actor represents the learned actor-behavior local policy shift. The
-one-step KL is reduced by summing over image dimensions by default
-(`--kl_reduce sum`), which corresponds to the actual Gaussian KL rather than a
-per-pixel mean.
+The BDPO value network uses the same OpenAI classifier-style scalar architecture
+as CEP's energy model. The actor is an OpenAI U-Net-style residual epsilon
+adapter with the same width, block count, channel multipliers, attention
+resolutions, head width, up/down residual blocks, and scale-shift normalization
+as the CEP classifier backbone, but with a decoder outputting pixel-level
+epsilon residuals.
+
+The behavior model is frozen. The residual actor is zero-initialized, so the
+unscaled actor is initially exactly the behavior prior and the trained actor
+represents the learned actor-behavior local policy shift. The one-step KL is
+reduced by summing over image dimensions by default (`--kl_reduce sum`), which
+corresponds to the actual Gaussian KL rather than a per-pixel mean.
 
 `--reverse_samples` defaults to `10`, matching flow-rl's `num_samples=10`. The
 implementation evaluates those reverse samples in one vectorized forward pass;
@@ -201,6 +207,8 @@ same Q(x), eta=0.02, data loader, and color target
 same 250-step DDPM evaluation sampler
 same guidance scale grid
 weight_decay=0, matching flow-rl's Adam usage
+actor_lr=1e-5, matching flow-rl's actor-learning-rate scale
+value_lr=3e-4, matching CEP/flow-rl scalar-value learning-rate scale
 reverse_samples=10, matching flow-rl's num_samples=10
 ```
 
@@ -269,7 +277,6 @@ torchrun --standalone --nproc_per_node=8 \
   --steps 500000 \
   --lr 3e-4 \
   --weight_decay 0 \
-  --energy_arch openai_classifier \
   --out_dir runs/cep_uncond_red
 ```
 
@@ -290,6 +297,8 @@ torchrun --standalone --nproc_per_node=8 \
   --data_dir Data/train \
   --color red \
   --eta 0.02 \
+  --actor_lr 1e-5 \
+  --value_lr 3e-4 \
   --kl_reduce sum \
   --reverse_samples 10 \
   --batch_size 1 \
@@ -377,7 +386,8 @@ config
 ```
 
 The `config` records the important alignment fields, including `eta`,
-`energy_arch`, `kl_reduce`, `reverse_samples`, sampler settings, and color.
+`energy_arch`, `actor_arch`, `value_arch`, `kl_reduce`, `reverse_samples`,
+sampler settings, and color.
 
 ## Intentional Differences From The Papers
 
@@ -395,7 +405,8 @@ BDPO:
 analytic image reward replaces environment Q learning
 no offline-RL ensembles, LCB, or target networks
 frozen OpenAI behavior prior instead of pretraining behavior in this repo
-residual image actor instead of a full actor diffusion model initialized from behavior
+OpenAI-style residual image actor instead of a full actor diffusion model
+initialized from behavior
 ```
 
 These are deliberate experiment choices. The core distributions and update

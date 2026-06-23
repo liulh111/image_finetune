@@ -82,6 +82,13 @@ separate `t=0` value network. `V_0(x)` is evaluated directly by the analytic
 reward. CEP uses `beta=50` in the paper, so this code sets `eta=1/beta=0.02`
 by default.
 
+CEP's energy network and BDPO's value network both use the OpenAI
+classifier-style `EncoderUNetModel`. BDPO's actor is an OpenAI U-Net-style
+residual epsilon adapter with the same width, block count, channel multipliers,
+attention resolutions, head width, up/down residual blocks, and scale-shift
+normalization as the CEP classifier backbone, but with a decoder outputting
+pixel-level epsilon residuals.
+
 ## 8-GPU Training
 
 All training commands support:
@@ -123,7 +130,6 @@ torchrun --standalone --nproc_per_node=8 \
   --batch_size 32 \
   --steps 500000 \
   --weight_decay 0 \
-  --energy_arch openai_classifier \
   --sample_every 1000 \
   --sample_k 4 \
   --sample_method ddpm \
@@ -147,6 +153,8 @@ torchrun --standalone --nproc_per_node=8 \
   --data_dir Data/train \
   --color red \
   --eta 0.02 \
+  --actor_lr 1e-5 \
+  --value_lr 3e-4 \
   --reverse_samples 10 \
   --batch_size 1 \
   --steps 500000 \
@@ -177,7 +185,6 @@ torchrun --standalone --nproc_per_node=8 \
   --batch_size 32 \
   --steps 500000 \
   --weight_decay 0 \
-  --energy_arch openai_classifier \
   --out_dir runs/cep_cond_red
 ```
 
