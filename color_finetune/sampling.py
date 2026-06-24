@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from torch import nn
 from torchvision.utils import save_image
 
 from .common import make_imagenet_labels, unwrap_model
@@ -33,48 +32,21 @@ def parse_guidance_levels(spec):
     return levels
 
 
+def parse_step_list(spec):
+    steps = [int(x.strip()) for x in str(spec).split(",") if x.strip()]
+    if not steps:
+        raise ValueError("at least one step count is required")
+    if any(step <= 0 for step in steps):
+        raise ValueError("step counts must be positive")
+    return steps
+
+
 def level_token(levels):
     parts = []
     for level in levels:
         text = f"{level:g}".replace("-", "m").replace(".", "p")
         parts.append(text)
     return "-".join(parts)
-
-
-class BehaviorGuidanceModel(nn.Module):
-    """Classifier-free-style guidance from separate unconditional/conditional priors."""
-
-    def __init__(self, uncond_model, cond_model):
-        super().__init__()
-        self.uncond_model = uncond_model
-        self.cond_model = cond_model
-
-    def forward(self, x, timesteps, y=None, guidance_scale=1.0):
-        scale = float(guidance_scale)
-        if scale == 0.0:
-            return self.uncond_model(x, timesteps)
-        if y is None:
-            raise ValueError("class labels are required when guidance_scale != 0")
-
-        cond = self.cond_model(x, timesteps, y)
-        if scale == 1.0:
-            return cond
-
-        uncond = self.uncond_model(x, timesteps)
-        c = x.shape[1]
-        if cond.shape[1] == c * 2 and uncond.shape[1] == c * 2:
-            eps_uncond, var_uncond = torch.split(uncond, c, dim=1)
-            eps_cond, var_cond = torch.split(cond, c, dim=1)
-            eps = eps_uncond + scale * (eps_cond - eps_uncond)
-            if scale <= 0.0:
-                var = var_uncond
-            elif scale >= 1.0:
-                var = var_cond
-            else:
-                var = var_uncond + scale * (var_cond - var_uncond)
-            return torch.cat([eps, var], dim=1)
-
-        return uncond + scale * (cond - uncond)
 
 
 def make_color_labels(batch_size, color, device):
@@ -389,11 +361,11 @@ def _fork_rng_devices(device):
     return [device.index]
 
 
-def save_behavior_guidance_grids(
+def save_behavior_prior_grids(
     *,
     diffusion,
-    uncond_model,
-    cond_model,
+    model,
+    model_kind,
     out_dir,
     device,
     k,
@@ -401,22 +373,24 @@ def save_behavior_guidance_grids(
     sample_method,
     steps,
     ddim_eta,
-    guidance_scales,
     sample_seed=0,
     progress=False,
 ):
-    model = BehaviorGuidanceModel(uncond_model, cond_model)
+    if model_kind not in {"uncond", "cond"}:
+        raise ValueError("model_kind must be 'uncond' or 'cond'")
     was_training = model.training
     model.eval()
 
-    row_labels = make_imagenet_labels(k, True, device)
-    labels = row_labels.repeat_interleave(n)
+    labels = None
+    if model_kind == "cond":
+        row_labels = make_imagenet_labels(k, True, device)
+        labels = row_labels.repeat_interleave(n)
     shape = (k * n, 3, 256, 256)
     noise = torch.randn(*shape, device=device)
     paths = []
 
     rng_devices = _fork_rng_devices(device)
-    for scale in guidance_scales:
+    for step_count in steps:
         with torch.random.fork_rng(devices=rng_devices):
             torch.manual_seed(int(sample_seed))
             if device.type == "cuda":
@@ -427,15 +401,15 @@ def save_behavior_guidance_grids(
                 shape,
                 device,
                 sample_method,
-                steps,
+                int(step_count),
                 ddim_eta=ddim_eta,
-                model_kwargs={"y": labels, "guidance_scale": float(scale)},
+                model_kwargs={"y": labels} if labels is not None else None,
                 noise=noise,
                 progress=progress,
             )
         name = (
-            f"behavior_scale_{level_token([scale])}_K{k}_N{n}_{sample_method}"
-            f"_steps{steps}_eta{ddim_eta:g}.png"
+            f"behavior_{model_kind}_K{k}_N{n}_{sample_method}"
+            f"_steps{step_count}_eta{ddim_eta:g}.png"
         )
         paths.append(save_grid(samples, str(Path(out_dir) / name), nrow=n))
 

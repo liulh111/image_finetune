@@ -358,10 +358,11 @@ and BDPO grids, so changes across a row are attributable to the guidance scale.
 To inspect the frozen behavior prior before training:
 
 ```bash
-K=4 N=8 scripts/sample_behavior.sh
+K=4 N=8 MODEL=cond STEPS=50,100,250 scripts/sample_behavior.sh
 ```
 
-This saves one grid per guidance scale in `runs/behavior_samples/`.
+Set `MODEL=uncond` or `MODEL=cond`. This saves one grid per sampler step count
+in `runs/behavior_samples/`.
 
 ## Checkpoints
 

@@ -244,16 +244,13 @@ encoded in the filename.
 
 ### Behavior Prior Samples
 
-This can be run before training. It loads the OpenAI unconditional and
-conditional behavior priors, samples `K x N` images, and saves one grid per
-guidance scale. Each row uses one ImageNet class label and contains `N` samples
-from that same class. The default scales are
-`0,0.25,0.5,1,1.5,2,2.5,3,5,10`; `s=0` is exactly the unconditional prior,
-`s=1` is exactly the conditional prior, and larger values use
-classifier-free-style extrapolation from the two separate priors.
+This can be run before training. It samples one OpenAI behavior prior at a
+time, either unconditional or conditional, and saves one `K x N` grid per
+sampler step count. Conditional rows use one ImageNet class label each and
+contain `N` samples from that same class.
 
 ```bash
-K=4 N=8 SCALES=0,0.25,0.5,1,1.5,2,2.5,3,5,10 METHOD=ddpm STEPS=250 scripts/sample_behavior.sh
+K=4 N=8 MODEL=cond METHOD=ddpm STEPS=50,100,250 scripts/sample_behavior.sh
 ```
 
 Equivalent explicit command:
@@ -262,14 +259,14 @@ Equivalent explicit command:
 python -m color_finetune.sample_behavior \
   --k 4 \
   --n 8 \
-  --guidance_scales 0,0.25,0.5,1,1.5,2,2.5,3,5,10 \
+  --model cond \
   --sample_method ddpm \
-  --steps 250 \
+  --steps 50,100,250 \
   --out_dir runs/behavior_samples
 ```
 
-Output filenames include the guidance scale, `K`, `N`, sample method, step
-count, and DDIM eta. No JSON sidecar is written.
+Output filenames include the selected behavior model, `K`, `N`, sample method,
+step count, and DDIM eta. No JSON sidecar is written.
 
 Standalone sampling from trained CEP/BDPO checkpoints is intentionally not
 implemented yet; training-time evaluation grids are written when
