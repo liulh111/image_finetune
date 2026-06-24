@@ -257,6 +257,12 @@ Default unconditional red run:
 COLOR=red scripts/train_cep_color_uncond.sh
 ```
 
+Conditional red run:
+
+```bash
+COLOR=red scripts/train_cep_color_cond.sh
+```
+
 Useful overrides:
 
 ```bash
@@ -286,6 +292,12 @@ Default unconditional red run:
 
 ```bash
 COLOR=red scripts/train_bdpo_color_uncond.sh
+```
+
+Conditional red run:
+
+```bash
+COLOR=red scripts/train_bdpo_color_cond.sh
 ```
 
 Equivalent command:
@@ -425,8 +437,14 @@ python -m compileall color_finetune
 STEPS=1 SAMPLE_EVERY=1 SAMPLE_K=1 GPUS=1 \
   scripts/train_cep_color_uncond.sh
 
+STEPS=1 SAMPLE_EVERY=1 SAMPLE_K=1 GPUS=1 \
+  scripts/train_cep_color_cond.sh
+
 STEPS=1 SAMPLE_EVERY=1 SAMPLE_K=1 GPUS=1 REVERSE_SAMPLES=1 \
   scripts/train_bdpo_color_uncond.sh
+
+STEPS=1 SAMPLE_EVERY=1 SAMPLE_K=1 GPUS=1 REVERSE_SAMPLES=1 \
+  scripts/train_bdpo_color_cond.sh
 ```
 
 The expected outcome is that each smoke test writes one checkpoint and one grid
